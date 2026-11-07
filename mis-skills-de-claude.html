@@ -151,20 +151,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--c-pers); ou
     <ol class="steps">
       <li><b>Descarga la skill.</b> En las fichas de «Mis skills», pulsa <i>Descargar .zip</i>. En las de la biblioteca, <i>Ver en GitHub</i> te lleva a su carpeta; desde <a href="https://github.com/GarethManning/education-agent-skills" target="_blank" rel="noopener">la portada del repositorio</a> puedes bajarla entera (<i>Code → Download ZIP</i>).</li>
       <li><b>Instálala en tu asistente.</b> Depende de la herramienta que uses (lo tienes detallado justo debajo). En todas, la idea es la misma: darle a la IA las instrucciones del archivo <code>SKILL.md</code>.</li>
-      <li><b>Pide la tarea con normalidad.</b> Con la skill instalada, la IA la usa cuando tu petición encaja con lo que hace. Si la has convertido en un GPT o un Gem, abre ese GPT o Gem y pídeselo allí.</li>
+      <li><b>Pide la tarea con normalidad.</b> Con la skill instalada, la IA la usa cuando tu petición encaja con lo que hace. Si quieres asegurarte, nómbrala en tu mensaje.</li>
     </ol>
     <div class="tools-grid">
       <div class="tool"><b>Claude</b><p>En claude.ai o en la aplicación, entra en <i>Configuración → Capacidades → Skills</i> y sube el .zip tal cual.</p></div>
-      <div class="tool"><b>ChatGPT</b><p>Crea un GPT, pega el texto del <code>SKILL.md</code> en <i>Instrucciones</i> y sube los demás archivos de la carpeta como <i>Conocimiento</i>.</p></div>
-      <div class="tool"><b>Gemini</b><p>Crea un Gem, pega el texto del <code>SKILL.md</code> en sus instrucciones y añade los demás archivos como conocimiento.</p></div>
-      <div class="tool"><b>Codex, Gemini CLI, Antigravity…</b><p>Las herramientas que admiten el estándar de skills la usan directamente: descomprime el .zip en su carpeta de skills.</p></div>
+      <div class="tool"><b>ChatGPT</b><p>Entra en <i>Skills → Crear → Subir desde el ordenador</i> y sube el .zip.</p></div>
+      <div class="tool"><b>Gemini</b><p>En la web o en la app de Mac, entra en la sección <i>Skills</i> y sube el archivo <code>SKILL.md</code> (descomprime antes el .zip). Las skills sustituyen a los antiguos Gems.</p></div>
+      <div class="tool"><b>Codex, Gemini CLI, Antigravity…</b><p>Descomprime el .zip en la carpeta de skills de la herramienta.</p></div>
     </div>
     <div class="example">
       <span class="ex-label">Ejemplo con <code>asistente-dua</code></span>
       <p class="ex-prompt">«Tengo una situación de aprendizaje de 2º de ESO sobre la célula. Adáptala con el DUA para un grupo de 25 alumnos, con dos alumnos con TDAH y una alumna que acaba de llegar y aún no habla castellano.»</p>
       <p>La IA reconoce que es una tarea de DUA, te hace como mucho cinco preguntas sobre lo que le falte (recursos, apoyos, criterios de evaluación…) y te devuelve las barreras que detecta y propuestas concretas para cada principio y pauta del DUA.</p>
     </div>
-    <p class="note">En ChatGPT y Gemini la skill funciona casi igual, pero no puede ejecutar los scripts que traen algunas (por ejemplo, las que rellenan una plantilla de Word). En esos casos te dará el contenido para que lo pegues tú.</p>
+    <p class="note">Todas usan el mismo formato abierto (<code>SKILL.md</code>), así que una misma skill sirve en cualquiera de ellas. Algunas traen scripts o plantillas de Word; si tu herramienta no puede usarlos, la skill te dará el contenido para que lo pegues tú. Los nombres de los menús pueden cambiar un poco según la versión y el idioma.</p>
   </section>
 
   <div class="panel">
