@@ -70,6 +70,22 @@ main.in { padding-block: 30px 64px; display: grid; gap: 22px }
 .find { flex: 1 1 260px; display: grid; gap: 6px; font-size: 13px; color: var(--muted) }
 .find input { font: 15px var(--body); padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); width: 100% }
 
+.guide { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px clamp(18px, 3vw, 32px); display: grid; gap: 16px; border-top: 6px solid var(--c-pers) }
+.guide h2 { margin: 0; font: 700 28px/1.15 var(--display) }
+.guide-lead { margin: 0; max-width: 72ch; font-size: 16px }
+.guide a { color: var(--i-propias); font-weight: 500 }
+.guide code { font: 13px var(--mono) }
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 12px }
+.steps li { counter-increment: s; background: var(--field); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; font-size: 14px }
+.steps li::before { content: counter(s); font: 700 15px/1 var(--display); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--i-pers); color: #fff }
+.steps b { font-size: 15px }
+.example { border-radius: 12px; padding: 16px 20px; background: var(--field); border: 1px dashed var(--c-pers); display: grid; gap: 8px; font-size: 14px }
+.example p { margin: 0; max-width: 80ch }
+.ex-label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--i-pers) }
+.ex-label code { text-transform: none; letter-spacing: 0 }
+.ex-prompt { font-size: 15px; font-style: italic }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 15px; min-height: 32px }
+.faq p { margin: 8px 0 0; max-width: 80ch; font-size: 14px; color: var(--muted) }
 .chips { display: flex; flex-wrap: wrap; gap: 8px }
 .chip { font: 500 14px var(--body); padding: 9px 15px; min-height: 42px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer }
 .chip[aria-pressed="true"] { background: var(--ci); border-color: var(--ci); color: #fff }
@@ -122,6 +138,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--c-pers); ou
 </div>
 
 <main class="in">
+  <section class="guide" aria-labelledby="guia">
+    <h2 id="guia">Cómo usar una skill</h2>
+    <p class="guide-lead">Una skill es un paquete de instrucciones (un archivo <code>SKILL.md</code>, a veces con plantillas o ejemplos) que enseña a la IA a hacer una tarea concreta siempre de la misma manera. Se instala una vez y después la IA la usa sola cuando le pides algo relacionado.</p>
+    <ol class="steps">
+      <li><b>Consigue la skill.</b> Las de la biblioteca abierta están en <a href="https://github.com/GarethManning/education-agent-skills" target="_blank" rel="noopener">su repositorio de GitHub</a>. Las mías, pídemelas y te paso la carpeta comprimida en .zip.</li>
+      <li><b>Instálala en Claude.</b> En <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a> o en la aplicación, entra en <i>Configuración → Capacidades → Skills</i> y sube el archivo .zip. Comprueba que la skill queda activada.</li>
+      <li><b>Pide la tarea con normalidad.</b> No hace falta nombrarla: Claude la activa cuando tu petición encaja con lo que hace. Si quieres forzarla, escribe su nombre.</li>
+    </ol>
+    <div class="example">
+      <span class="ex-label">Ejemplo con <code>asistente-dua</code></span>
+      <p class="ex-prompt">«Tengo una situación de aprendizaje de 2º de ESO sobre la célula. Adáptala con el DUA para un grupo de 25 alumnos, con dos alumnos con TDAH y una alumna que acaba de llegar y aún no habla castellano.»</p>
+      <p>Claude reconoce que es una tarea de DUA, te hace como mucho cinco preguntas sobre lo que le falte (recursos, apoyos, criterios de evaluación…) y te devuelve las barreras que detecta y propuestas concretas para cada principio y pauta del DUA.</p>
+    </div>
+    <details class="faq">
+      <summary>¿Solo funciona en Claude?</summary>
+      <p>No. El formato <code>SKILL.md</code> es un estándar abierto. Funciona igual en herramientas que lo admiten, como Claude Code, OpenAI Codex, Gemini CLI o Google Antigravity: basta con copiar la carpeta de la skill en su carpeta de skills. En ChatGPT o en la web de Gemini no se instalan skills, pero puedes pegar el texto del <code>SKILL.md</code> como instrucciones de un GPT o de un Gem. Así funciona casi igual, aunque pierde las plantillas y los scripts que lleve la carpeta.</p>
+    </details>
+  </section>
+
   <div class="panel">
     <div class="howto" id="howto"></div>
     <label class="find" for="q">Buscar
@@ -133,7 +168,6 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--c-pers); ou
 </main>
 
 <footer class="in">
-  <p><strong>Cómo se usa una skill.</strong> Con la skill instalada, basta con pedir la tarea en lenguaje normal («diseña una situación de aprendizaje de 3º de ESO sobre…») y Claude la activa solo. También puedes escribir su nombre precedido de barra, por ejemplo <code>/programar-eso-cv</code>.</p>
   <p>No aparecen las skills internas de la aplicación (navegador, control del ordenador, memoria, configuración), porque no sirven para trabajo docente.</p>
 </footer>
 
