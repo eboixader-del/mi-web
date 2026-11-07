@@ -70,8 +70,19 @@ main.in { padding-block: 30px 64px; display: grid; gap: 22px }
 .find { flex: 1 1 260px; display: grid; gap: 6px; font-size: 13px; color: var(--muted) }
 .find input { font: 15px var(--body); padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); width: 100% }
 
-.guide { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px clamp(18px, 3vw, 32px); display: grid; gap: 16px; border-top: 6px solid var(--c-pers) }
-.guide h2 { margin: 0; font: 700 28px/1.15 var(--display) }
+.guide { background: var(--card); border: 1px solid var(--line); border-radius: 14px; border-top: 6px solid var(--c-pers) }
+.guide summary { list-style: none; cursor: pointer; padding: 18px clamp(18px, 3vw, 32px); display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 0 0 14px 14px }
+.guide summary::-webkit-details-marker { display: none }
+.guide summary:focus-visible { outline: 2px solid var(--c-pers); outline-offset: 2px }
+.sum-text { display: grid; gap: 4px; min-width: 0 }
+.sum-hint { font-size: 14px; color: var(--muted) }
+.guide[open] .sum-hint { display: none }
+.sum-icon { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--i-pers); position: relative }
+.sum-icon::before, .sum-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px; background: #fff; transform: translate(-50%, -50%) }
+.sum-icon::after { transform: translate(-50%, -50%) rotate(90deg) }
+.guide[open] .sum-icon::after { display: none }
+.guide-body { padding: 0 clamp(18px, 3vw, 32px) 24px; display: grid; gap: 16px }
+.guide h2 { margin: 0; font: 700 26px/1.15 var(--display) }
 .guide-lead { margin: 0; max-width: 72ch; font-size: 16px }
 .guide a { color: var(--i-propias); font-weight: 500 }
 .guide code { font: 13px var(--mono) }
@@ -145,8 +156,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--c-pers); ou
 </div>
 
 <main class="in">
-  <section class="guide" aria-labelledby="guia">
-    <h2 id="guia">Cómo usar una skill</h2>
+  <details class="guide" id="guia-box">
+    <summary><span class="sum-text"><h2 id="guia">Cómo usar una skill</h2><span class="sum-hint">Qué es, cómo descargarla e instalarla en Claude, ChatGPT, Gemini y otras herramientas, con un ejemplo.</span></span><span class="sum-icon" aria-hidden="true"></span></summary>
+    <div class="guide-body">
     <p class="guide-lead">Una skill es un paquete de instrucciones (un archivo <code>SKILL.md</code>, a veces con plantillas o ejemplos) que enseña a la IA a hacer una tarea concreta siempre de la misma manera. Se instala una vez y después la IA la usa sola cuando le pides algo relacionado.</p>
     <ol class="steps">
       <li><b>Descarga la skill.</b> En las fichas de «Mis skills», pulsa <i>Descargar .zip</i>. En las de la biblioteca, <i>Ver en GitHub</i> te lleva a su carpeta; desde <a href="https://github.com/GarethManning/education-agent-skills" target="_blank" rel="noopener">la portada del repositorio</a> puedes bajarla entera (<i>Code → Download ZIP</i>).</li>
@@ -165,7 +177,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--c-pers); ou
       <p>La IA reconoce que es una tarea de DUA, te hace como mucho cinco preguntas sobre lo que le falte (recursos, apoyos, criterios de evaluación…) y te devuelve las barreras que detecta y propuestas concretas para cada principio y pauta del DUA.</p>
     </div>
     <p class="note">Todas usan el mismo formato abierto (<code>SKILL.md</code>), así que una misma skill sirve en cualquiera de ellas. Algunas traen scripts o plantillas de Word; si tu herramienta no puede usarlos, la skill te dará el contenido para que lo pegues tú. Los nombres de los menús pueden cambiar un poco según la versión y el idioma.</p>
-  </section>
+    </div>
+  </details>
 
   <div class="panel">
     <div class="howto" id="howto"></div>
