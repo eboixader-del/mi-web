@@ -1,0 +1,5 @@
+{
+  "excluir_anthropic": ["built-in-browser", "chrome-browser", "computer-use", "deep-research", "docs", "docx", "file-reading", "frontend-design", "google-workspace", "import-memory", "morning", "pdf", "pdf-reading", "pptx", "product-self-knowledge", "skill-creator", "video-making", "xlsx"],
+  "excluir_privadas": [],
+  "pendientes_decidir": ["evaluar-tarea2-intef-gem", "evaluar-tarea3-intef-sda"]
+}
