@@ -40,7 +40,7 @@ if (contactForm) {
     const message = contactForm.message.value.trim();
     const status = document.getElementById("form-status");
 
-    const subject = encodeURIComponent(`Contacto desde eboixader.es — ${name || "Sin nombre"}`);
+    const subject = encodeURIComponent(`Contacto desde la web — ${name || "Sin nombre"}`);
     const body = encodeURIComponent(`${message}\n\n—\n${name}\n${email}`);
 
     window.location.href = `mailto:ernesto@fundacionflors.es?subject=${subject}&body=${body}`;
