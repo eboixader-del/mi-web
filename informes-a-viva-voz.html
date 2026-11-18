@@ -8,120 +8,170 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Informes a viva voz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@500&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap">
 <style>
-/* Layout: una columna de trabajo (máx. 780px), barra de pasos arriba, una tarjeta activa por paso. Cuaderno de evaluación: papel frío, tinta azul, marca de lápiz ámbar. */
+/* Layout: cuaderno del docente — papel pautado con margen rojo, pestañas de separador como pasos, fichas por pregunta con el color de su bloque y el micro como protagonista. */
 :root{
-  --bg:#f3f6f5; --paper:#ffffff; --ink:#1b2a33; --muted:#5b6b73; --line:#d6e0df;
-  --accent:#1d6a84; --accent-ink:#ffffff; --accent-soft:#e2eff3;
-  --pencil:#b7790c; --pencil-soft:#fbf0d9;
-  --good:#2f7d4f; --warn:#b4462d; --rec:#c2332a;
+  --bg:#f4f1e8; --paper:#fffdf7; --ink:#20303b; --muted:#5d6b73; --line:#ddd6c4; --rule:#d5e1ea; --margin:#e7a3a0;
+  --accent:#1f5f9e; --accent-ink:#ffffff; --accent-soft:#e3edf7;
+  --pencil:#b06f00; --pencil-soft:#fbefcf; --hl:#ffe680;
+  --good:#2f7d4f; --warn:#b4462d; --rec:#d23a2e;
+  --c-blue:#2f6fb3; --c-violet:#7357b8; --c-teal:#1f8a83; --c-amber:#c07a00; --c-green:#3c8a3f; --c-rose:#c2456b; --c-slate:#5a6b7d;
   --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --r:10px;
+  --f-hand:"Caveat", "Segoe Print", "Comic Sans MS", cursive;
+  --r:12px; --shadow:0 1px 0 rgba(32,48,59,.06), 0 6px 18px -8px rgba(32,48,59,.22);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#121a1e; --paper:#1a252b; --ink:#e4ecef; --muted:#9aaab1; --line:#2c3b42;
-  --accent:#5fb3cf; --accent-ink:#0c1a20; --accent-soft:#1d3440;
-  --pencil:#e3a83a; --pencil-soft:#3a2f17; --good:#6cc391; --warn:#e98a73; --rec:#ff6b5f; color-scheme:dark}}
+  --bg:#161d22; --paper:#1d262d; --ink:#e7ecef; --muted:#9fadb5; --line:#33414a; --rule:#25323b; --margin:#7a3c3a;
+  --accent:#6aa9e6; --accent-ink:#0d1a26; --accent-soft:#1f3346;
+  --pencil:#e8b04a; --pencil-soft:#3b3020; --hl:#6b5a14;
+  --good:#6cc391; --warn:#ee8b74; --rec:#ff6a5c;
+  --c-blue:#6aa9e6; --c-violet:#a993ea; --c-teal:#55c2b8; --c-amber:#e8b04a; --c-green:#7cc77f; --c-rose:#ec7fa0; --c-slate:#9fb1c3;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 22px -10px rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#121a1e; --paper:#1a252b; --ink:#e4ecef; --muted:#9aaab1; --line:#2c3b42;
-  --accent:#5fb3cf; --accent-ink:#0c1a20; --accent-soft:#1d3440;
-  --pencil:#e3a83a; --pencil-soft:#3a2f17; --good:#6cc391; --warn:#e98a73; --rec:#ff6b5f; color-scheme:dark}
+  --bg:#161d22; --paper:#1d262d; --ink:#e7ecef; --muted:#9fadb5; --line:#33414a; --rule:#25323b; --margin:#7a3c3a;
+  --accent:#6aa9e6; --accent-ink:#0d1a26; --accent-soft:#1f3346;
+  --pencil:#e8b04a; --pencil-soft:#3b3020; --hl:#6b5a14;
+  --good:#6cc391; --warn:#ee8b74; --rec:#ff6a5c;
+  --c-blue:#6aa9e6; --c-violet:#a993ea; --c-teal:#55c2b8; --c-amber:#e8b04a; --c-green:#7cc77f; --c-rose:#ec7fa0; --c-slate:#9fb1c3;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 8px 22px -10px rgba(0,0,0,.6); color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
-.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
-h1{font-size:clamp(1.6rem,4vw,2.1rem)}
-h2{font-size:1.35rem}
-h3{font-size:1.05rem}
+body{background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule) 31px,var(--rule) 32px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px}
+.wrap{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:20px;position:relative}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.12}
+h1{font-size:clamp(2rem,6vw,3rem);font-weight:700;letter-spacing:-.02em}
+h1 mark{background:linear-gradient(to top,var(--hl) 0,var(--hl) 42%,transparent 42%);color:inherit;padding:0 .08em}
+h2{font-size:1.4rem}
+h3{font-size:1.08rem}
 p{margin:0}
-.lead{color:var(--muted);max-width:62ch}
-header.top{display:flex;flex-direction:column;gap:6px}
-.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pencil);font-weight:700}
+a{color:var(--accent)}
+.lead{color:var(--muted);max-width:60ch;font-size:1.05rem}
+header.top{display:flex;flex-direction:column;gap:8px;padding-left:22px;border-left:2px solid var(--margin)}
+.eyebrow{font-family:var(--f-hand);font-size:1.45rem;line-height:1;color:var(--pencil);transform:rotate(-1.5deg);transform-origin:left;display:inline-block}
 
-/* pasos */
-nav.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px}
-nav.steps button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);min-width:0}
-nav.steps button .n{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
-nav.steps button .t{font-weight:700;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-nav.steps button[aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+/* pestañas de separador */
+nav.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+  background:var(--bg);padding-top:8px;border-bottom:2px solid var(--line)}
+nav.steps button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:0;padding:8px 12px 7px;border-radius:10px 10px 0 0;
+  border:1px solid var(--line);border-bottom:0;background:var(--paper);min-width:0;margin-bottom:-2px;position:relative;opacity:.82;
+  border-top:4px solid var(--tab,var(--c-slate))}
+nav.steps button:nth-child(1){--tab:var(--c-blue)} nav.steps button:nth-child(2){--tab:var(--c-amber)}
+nav.steps button:nth-child(3){--tab:var(--c-rose)} nav.steps button:nth-child(4){--tab:var(--c-green)}
+nav.steps button .n{font-family:var(--f-hand);font-size:1.05rem;line-height:1.05;color:var(--muted)}
+nav.steps button .t{font-weight:700;font-size:.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav.steps button:hover{opacity:1}
+nav.steps button[aria-current="step"]{opacity:1;padding-top:12px;border-bottom:2px solid var(--paper);box-shadow:var(--shadow)}
 nav.steps button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-@media (max-width:520px){nav.steps button .t{font-size:.8rem}}
+@media (max-width:520px){nav.steps button{padding-inline:7px} nav.steps button .t{font-size:.8rem;white-space:normal;line-height:1.15} nav.steps button .n{font-size:.9rem}}
 
-.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+/* fichas */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 22px 34px;display:flex;flex-direction:column;gap:16px;min-width:0;
+  box-shadow:var(--shadow);position:relative;
+  background-image:linear-gradient(to right,transparent 18px,var(--margin) 18px,var(--margin) 19px,transparent 19px)}
+#iv{border-top:6px solid var(--blk,var(--accent))}
+#iv[data-blk="aprend"],#iv[data-blk="s-recom"]{--blk:var(--c-blue)}
+#iv[data-blk="partic"]{--blk:var(--c-violet)}
+#iv[data-blk="equipo"]{--blk:var(--c-teal)}
+#iv[data-blk="respon"],#iv[data-blk="s-mejorar"]{--blk:var(--c-amber)}
+#iv[data-blk="actitud"],#iv[data-blk="s-bien"]{--blk:var(--c-green)}
+#iv[data-blk="convive"]{--blk:var(--c-rose)}
+#iv[data-blk="otros"]{--blk:var(--c-slate)}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-@media (max-width:600px){.grid2{grid-template-columns:1fr}}
-label.f{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem;min-width:0}
-label.f small,.hint{font-weight:400;color:var(--muted);font-size:.85rem}
+@media (max-width:600px){.grid2{grid-template-columns:1fr} .card{padding:18px 16px 18px 28px;background-image:linear-gradient(to right,transparent 14px,var(--margin) 14px,var(--margin) 15px,transparent 15px)}}
+label.f,.f{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem;min-width:0}
+label.f small,.hint{font-weight:400;color:var(--muted);font-size:.86rem}
 input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
 textarea{resize:vertical;min-height:110px}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+textarea.lined,#rep{background-color:var(--paper);line-height:32px;padding:0 14px 8px;border-radius:8px;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,var(--rule) 31px,var(--rule) 32px);background-attachment:local}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
 .check input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
 
-.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:8px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:999px;padding:10px 18px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;text-decoration:none;transition:transform .12s, box-shadow .12s}
+.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow)}
 .btn.ghost{background:transparent;color:var(--accent)}
-.btn.quiet{background:transparent;border-color:var(--line);color:var(--ink);font-weight:400}
+.btn.quiet{background:var(--paper);border-color:var(--line);color:var(--ink);font-weight:400}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .row.end{justify-content:flex-end}
 .row.between{justify-content:space-between}
 
-/* pastillas */
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font:inherit;font-size:.86rem;cursor:pointer;border-radius:999px;padding:5px 11px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700}
+/* pegatinas */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips:empty{display:none}
+.chip{font:inherit;font-size:.87rem;cursor:pointer;border-radius:999px;padding:5px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);transition:background .15s}
+.chip:hover{background:var(--accent-soft)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:700}
 .chip.neg{border-style:dashed}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.ctxrow{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:start;padding-block:8px;border-top:1px solid var(--line)}
+.ctxrow{display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:start;padding-block:9px;border-top:1px dashed var(--line)}
 .ctxrow:first-of-type{border-top:0}
 .ctxrow .lab{font-weight:700;font-size:.9rem;padding-top:5px}
 @media (max-width:600px){.ctxrow{grid-template-columns:1fr;gap:6px}}
 
 /* micro */
-.answer{display:flex;flex-direction:column;gap:8px}
-.mic{width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);background:var(--paper);color:var(--accent);cursor:pointer;display:grid;place-items:center;flex:none}
-.mic svg{width:26px;height:26px}
-.mic.on{background:var(--rec);border-color:var(--rec);color:#fff;animation:pulse 1.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--rec) 45%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
-@media (prefers-reduced-motion:reduce){.mic.on{animation:none}}
-.mic:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
+.answer{display:flex;flex-direction:column;gap:10px}
+.mic{width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);background:var(--paper);color:var(--accent);cursor:pointer;display:grid;place-items:center;flex:none;position:relative;transition:transform .15s}
+.mic:hover{transform:scale(1.05)}
+.mic svg{width:26px;height:26px;position:relative;z-index:1}
+.mic.on{background:var(--rec);border-color:var(--rec);color:#fff}
+.mic.on::before,.mic.on::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--rec);animation:wave 1.8s ease-out infinite}
+.mic.on::after{animation-delay:.9s}
+@keyframes wave{from{transform:scale(1);opacity:.7}to{transform:scale(1.9);opacity:0}}
+.mic:focus-visible{outline:3px solid var(--pencil);outline-offset:3px}
+.bigmic{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0 6px;text-align:center}
+.bigmic .mic{width:96px;height:96px;border-width:3px;box-shadow:var(--shadow)}
+.bigmic .mic svg{width:40px;height:40px}
 .mic-row{display:flex;gap:12px;align-items:center}
-.mic-row .mic-label{font-size:.88rem;color:var(--muted)}
-.partial{min-height:1.4em;color:var(--pencil);font-style:italic;font-size:.92rem}
-.dict-tip{font-size:.85rem;color:var(--muted);background:var(--pencil-soft);border-radius:8px;padding:8px 10px}
+.mic-label{font-size:.9rem;color:var(--muted);margin:0}
+.mic-label .on-t{display:none;color:var(--rec);font-weight:700}
+body.is-listening .mic-label .idle-t{display:none}
+body.is-listening .mic-label .on-t{display:inline}
+.partial{min-height:1.4em;color:var(--pencil);font-family:var(--f-hand);font-size:1.3rem;line-height:1.2;text-align:center}
+.mic-row + .partial{text-align:left}
+.dict-tip{font-size:.86rem;color:var(--muted);background:var(--pencil-soft);border-radius:8px;padding:8px 12px;text-align:left}
+@media (prefers-reduced-motion:reduce){.mic.on::before,.mic.on::after{animation:none;opacity:0} .btn,.mic{transition:none}}
 
-.qhead{display:flex;flex-direction:column;gap:4px}
-.qcount{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.qtext{font-size:1.15rem;font-family:var(--f-display);font-weight:500}
-.progress{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-.progress>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qhead{display:flex;flex-direction:column;gap:6px}
+.qcount{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.blk{font-family:var(--f-hand);font-size:1.55rem;line-height:1;color:var(--blk,var(--accent))}
+.qtext{font-size:clamp(1.2rem,3.2vw,1.5rem);font-family:var(--f-display);font-weight:500;line-height:1.25;text-wrap:balance}
+.dots{display:flex;gap:6px}
+.dots i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--blk,var(--accent));display:block}
+.dots i.done{background:var(--blk,var(--accent))}
+.dots i.now{background:var(--blk,var(--accent));box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--blk,var(--accent))}
 
-.note{border-left:4px solid var(--pencil);background:var(--pencil-soft);padding:10px 12px;border-radius:0 8px 8px 0;font-size:.92rem}
-.status{font-size:.9rem;color:var(--muted);min-height:1.3em}
+.note{border-left:4px solid var(--pencil);background:var(--pencil-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.93rem}
+.status{font-size:.92rem;color:var(--muted);min-height:1.3em}
 .status.err{color:var(--warn)}
-#rep{min-height:320px;font-size:1rem;line-height:1.6;background:var(--paper)}
+#rep{min-height:340px;font-size:1.02rem}
 .count{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .count.over{color:var(--warn);font-weight:700}
 .summary{display:flex;flex-direction:column;gap:8px}
-.summary .it{border-top:1px solid var(--line);padding-top:8px}
-.summary .it b{display:block;font-size:.85rem;color:var(--muted)}
+.summary .it{border-top:1px dashed var(--line);padding-top:8px}
+.summary .it b{display:block;font-family:var(--f-hand);font-weight:400;font-size:1.3rem;line-height:1.1;color:var(--pencil)}
 .list{display:flex;flex-direction:column;gap:8px}
-.list .li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
-.badge{font-size:.75rem;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--pencil-soft);color:var(--pencil)}
-details{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--paper)}
+.list .li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--paper)}
+.badge{font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--pencil-soft);color:var(--pencil)}
+details{border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;background:var(--paper);box-shadow:var(--shadow)}
 details summary{cursor:pointer;font-weight:700}
 details[open] summary{margin-bottom:10px}
-.guide{background:var(--accent-soft);border-color:transparent}
-.guide ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px;max-width:66ch}
+.card details{box-shadow:none}
+.guide{background:var(--accent-soft);border-color:transparent;box-shadow:none;margin-top:6px}
+.guide summary{font-family:var(--f-display)}
+.guide ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:9px;max-width:66ch}
+.guide ol li::marker{font-family:var(--f-hand);font-size:1.3em;color:var(--accent)}
 .guide p{margin-top:10px}
 ol.mini{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper)}
-footer{font-size:.82rem;color:var(--muted);text-align:center;max-width:62ch;margin:8px auto 0}
-footer a{color:var(--accent)}
+#web-steps{background:var(--pencil-soft);border-radius:10px;padding:14px 16px}
+footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;margin:8px auto 0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .thinking::after{content:"";display:inline-block;width:1em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
@@ -132,7 +182,7 @@ footer a{color:var(--accent)}
 <div class="wrap">
   <header class="top">
     <span class="eyebrow">Evaluación del alumnado</span>
-    <h1>Informes a viva voz</h1>
+    <h1>Informes <mark>a viva voz</mark></h1>
     <p class="lead" id="lead">Responde a unas preguntas hablando o escribiendo y Claude redacta el informe. Tú lo revisas y decides la versión final.</p>
     <details class="guide" id="guide-web" hidden>
       <summary>Cómo se usa (5 pasos)</summary>
@@ -548,7 +598,7 @@ function fillMicSlots(root = document) {
   $$(".micslot", root).forEach(s => { s.innerHTML = micHTML(s.dataset.for); s.hidden = !cap.dict; });
 }
 function dictTip() {
-  if (cap.dict) return `<p class="mic-label">Pulsa el micro, habla y vuelve a pulsarlo al terminar. También puedes escribir.</p>`;
+  if (cap.dict) return `<p class="mic-label"><span class="idle-t">Pulsa el micro y habla. Vuelve a pulsarlo al terminar.</span><span class="on-t">Te escucho… pulsa otra vez para terminar.</span></p>`;
   return `<p class="dict-tip">Para dictar, usa el dictado de tu sistema: <b>Windows + H</b> en Windows, el micro del teclado en el móvil o <b>Fn dos veces</b> en Mac.</p>`;
 }
 document.addEventListener("click", e => {
@@ -578,6 +628,7 @@ function micError(code) {
 function partialEl() { return micTarget ? $(`[data-partial="${micTarget.id}"]`) : null; }
 function flashPartial(t) { const p = partialEl(); if (p) p.textContent = t; }
 function setMicButtons(on) {
+  document.body.classList.toggle("is-listening", !!on);
   $$("[data-mic]").forEach(b => { const me = micTarget && b.dataset.mic === micTarget.id && on; b.classList.toggle("on", me); b.setAttribute("aria-pressed", me); b.setAttribute("aria-label", me ? "Detener el dictado" : "Dictar con el micrófono"); });
 }
 function stopMic() { if (cap.dict && cap.dict.active()) cap.dict.stop().catch(() => {}); if (cap.tts) { try { cap.tts.stop(); } catch {} } }
@@ -613,6 +664,7 @@ function renderIV() {
   stopMic();
   if (!alumno) alumno = newAlumno();
   const iv = $("#iv"), st = alumno.stage;
+  iv.dataset.blk = st === "q" ? qs()[alumno.i].id : "";
   if (st === "alumno") {
     iv.innerHTML = `
       <div class="row between"><h2>¿De quién es el informe?</h2><button class="btn quiet" id="a-ej">Ver un ejemplo</button></div>
@@ -645,13 +697,15 @@ function renderIV() {
   if (st === "q") {
     const Q = qs(), q = Q[alumno.i], n = Q.length, val = alumno.respuestas[q.id] || "";
     iv.innerHTML = `
-      <div class="progress" aria-hidden="true"><i style="width:${(alumno.i / n) * 100}%"></i></div>
-      <div class="qhead"><span class="qcount">Pregunta ${alumno.i + 1} de ${n} · ${esc(q.tit)}</span>
+      <div class="qhead">
+        <div class="row between"><span class="qcount">${esc(alumno.nombre)} · pregunta ${alumno.i + 1} de ${n}</span>
+          <span class="dots" aria-hidden="true">${Q.map((_, k) => `<i class="${k < alumno.i ? "done" : k === alumno.i ? "now" : ""}"></i>`).join("")}</span></div>
+        <span class="blk">${esc(q.tit)}</span>
         <p class="qtext" id="q-text">${esc(q.q(nom()))}</p></div>
       <div class="answer">
-        <div class="mic-row"><span class="micslot" data-for="q-ans"></span><textarea id="q-ans" aria-labelledby="q-text" placeholder="Habla o escribe con tus palabras. No hace falta redactar bien.">${esc(val)}</textarea></div>
+        <div class="bigmic"><span class="micslot" data-for="q-ans"></span>${dictTip()}</div>
         <div class="partial" data-partial="q-ans"></div>
-        ${dictTip()}
+        <textarea id="q-ans" class="lined" aria-labelledby="q-text" placeholder="Aquí aparece lo que dictas. También puedes escribir con tus palabras.">${esc(val)}</textarea>
       </div>
       <details ${alumno.i === 0 ? "" : ""}><summary>Ideas rápidas (toca para añadir)</summary>
         <div class="answer"><div class="chips">${q.pos.map(t => `<button type="button" class="chip" data-add="${esc(t)}">${esc(t)}</button>`).join("")}</div>
@@ -680,11 +734,11 @@ function renderIV() {
   }
   if (st === "libre") {
     iv.innerHTML = `
-      <div class="qhead"><span class="qcount">Modo libre</span><p class="qtext" id="l-text">${esc(libreQ())}</p></div>
+      <div class="qhead"><span class="qcount">${esc(alumno.nombre)} · modo libre</span><span class="blk">Cuéntamelo todo</span><p class="qtext" id="l-text">${esc(libreQ())}</p></div>
       <div class="answer">
-        <div class="mic-row"><span class="micslot" data-for="l-ans"></span><textarea id="l-ans" style="min-height:200px" aria-labelledby="l-text" placeholder="Por ejemplo: aprendizaje, participación, trabajo en equipo, tareas y estudio, actitud, comportamiento, evolución y qué le recomiendas.">${esc(alumno.libre)}</textarea></div>
+        <div class="bigmic"><span class="micslot" data-for="l-ans"></span>${dictTip()}</div>
         <div class="partial" data-partial="l-ans"></div>
-        ${dictTip()}
+        <textarea id="l-ans" class="lined" style="min-height:224px" aria-labelledby="l-text" placeholder="Por ejemplo: aprendizaje, participación, trabajo en equipo, tareas y estudio, actitud, comportamiento, evolución y qué le recomiendas.">${esc(alumno.libre)}</textarea>
       </div>
       <div class="row between"><button class="btn ghost" id="l-prev">Cambiar alumno</button><button class="btn" id="l-next">Terminar</button></div>`;
     fillMicSlots(iv);
