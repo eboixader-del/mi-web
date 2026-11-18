@@ -171,6 +171,39 @@ details[open] summary{margin-bottom:10px}
 ol.mini{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
 kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper)}
 #web-steps{background:var(--pencil-soft);border-radius:10px;padding:14px 16px}
+/* estructura: móvil en una columna; ordenador con columna lateral fija y columna de trabajo */
+.layout{display:flex;flex-direction:column;gap:20px}
+.side{display:contents}
+.side-info{display:none}
+.main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.view:not(.card){display:flex;flex-direction:column;gap:20px;min-width:0}
+.qbody{display:flex;flex-direction:column;gap:14px}
+.ideas{box-shadow:none}
+@media (min-width:1024px){
+  .wrap{max-width:1240px}
+  header.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px;row-gap:8px;align-items:start}
+  header.top > :not(.guide){grid-column:1}
+  header.top .guide{grid-column:2;grid-row:1 / span 3;margin-top:0}
+  .layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:32px;align-items:start}
+  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+  nav.steps{grid-template-columns:1fr;position:static;padding-top:0;border-bottom:0;gap:8px;background:transparent}
+  nav.steps button{border-radius:10px;border:1px solid var(--line);border-left:6px solid var(--tab);margin:0;padding:10px 14px;transition:transform .15s}
+  nav.steps button[aria-current="step"]{padding-top:10px;border-bottom:1px solid var(--line);transform:translateX(8px)}
+  nav.steps button .t{font-size:1rem}
+  .side-info{display:flex;flex-direction:column;gap:12px}
+  .side-info:empty{display:none}
+  .si-block{display:flex;flex-direction:column;gap:4px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;min-width:0;overflow-wrap:anywhere}
+  .si-lab{font-family:var(--f-hand);font-size:1.25rem;line-height:1;color:var(--pencil)}
+  .card{padding:28px 30px 28px 44px;background-image:linear-gradient(to right,transparent 24px,var(--margin) 24px,var(--margin) 25px,transparent 25px)}
+  #v-ajustes .grid2{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .qbody{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:28px;align-items:start}
+  .qbody .ideas{position:sticky;top:16px}
+  .qbody textarea.lined{min-height:224px}
+  #v-informe:not([hidden]):has(> :not(:first-child):not([hidden])){display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px;align-items:start}
+  #v-informe > :first-child{grid-column:1;grid-row:1 / span 4}
+  #v-informe > :not(:first-child){grid-column:2}
+  #rep{min-height:480px}
+}
 footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;margin:8px auto 0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .thinking::after{content:"";display:inline-block;width:1em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
@@ -207,12 +240,17 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     </details>
   </header>
 
+  <div class="layout">
+  <aside class="side">
   <nav class="steps" aria-label="Pasos">
     <button data-go="ajustes"><span class="n">Paso 1</span><span class="t">Tu materia</span></button>
     <button data-go="contexto"><span class="n">Paso 2 · opcional</span><span class="t">Centro y grupo</span></button>
     <button data-go="entrevista"><span class="n">Paso 3</span><span class="t">Entrevista</span></button>
     <button data-go="informe"><span class="n">Paso 4</span><span class="t">Informe</span></button>
   </nav>
+  <div class="side-info" id="side-info" aria-live="polite"></div>
+  </aside>
+  <main class="main">
 
   <!-- PASO 1 -->
   <section id="v-ajustes" class="view card" aria-labelledby="h-aj">
@@ -370,6 +408,9 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     </div>
   </details>
 
+  </main>
+  </div>
+
   <footer>Basado en la plantilla de comentarios de evaluación de Guillermo Antón Pardo (<a href="https://profesorproductivo.com" target="_blank" rel="noopener">profesorproductivo.com</a>), adaptada por @eboixader. · <a href="iag-en-el-aula.html">Volver a IAg en el aula</a></footer>
 </div>
 
@@ -526,6 +567,7 @@ function go(v) {
   const b = $(`nav.steps button[data-go="${v}"]`); if (b) b.setAttribute("aria-current", "step");
   if (v === "entrevista") renderIV();
   if (v === "informe") enterInforme();
+  updateSide();
   LS.set("iav-view", v === "informe" && !alumno ? "entrevista" : v);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -665,6 +707,7 @@ function renderIV() {
   if (!alumno) alumno = newAlumno();
   const iv = $("#iv"), st = alumno.stage;
   iv.dataset.blk = st === "q" ? qs()[alumno.i].id : "";
+  updateSide();
   if (st === "alumno") {
     iv.innerHTML = `
       <div class="row between"><h2>¿De quién es el informe?</h2><button class="btn quiet" id="a-ej">Ver un ejemplo</button></div>
@@ -702,15 +745,17 @@ function renderIV() {
           <span class="dots" aria-hidden="true">${Q.map((_, k) => `<i class="${k < alumno.i ? "done" : k === alumno.i ? "now" : ""}"></i>`).join("")}</span></div>
         <span class="blk">${esc(q.tit)}</span>
         <p class="qtext" id="q-text">${esc(q.q(nom()))}</p></div>
+      <div class="qbody">
       <div class="answer">
         <div class="bigmic"><span class="micslot" data-for="q-ans"></span>${dictTip()}</div>
         <div class="partial" data-partial="q-ans"></div>
         <textarea id="q-ans" class="lined" aria-labelledby="q-text" placeholder="Aquí aparece lo que dictas. También puedes escribir con tus palabras.">${esc(val)}</textarea>
       </div>
-      <details ${alumno.i === 0 ? "" : ""}><summary>Ideas rápidas (toca para añadir)</summary>
+      <details class="ideas" ${WIDE.matches ? "open" : ""}><summary>Ideas rápidas (toca para añadir)</summary>
         <div class="answer"><div class="chips">${q.pos.map(t => `<button type="button" class="chip" data-add="${esc(t)}">${esc(t)}</button>`).join("")}</div>
         <div class="chips">${q.neg.map(t => `<button type="button" class="chip neg" data-add="${esc(t)}">${esc(t)}</button>`).join("")}</div></div>
       </details>
+      </div>
       <div class="row between">
         <button class="btn ghost" id="q-prev">${alumno.i === 0 ? "Cambiar alumno" : "Anterior"}</button>
         <div class="row"><button class="btn quiet" id="q-skip">Saltar</button><button class="btn" id="q-next">${alumno.i === n - 1 ? "Terminar" : "Siguiente"}</button></div>
@@ -784,6 +829,21 @@ function renderIV() {
     $("#fo-go").onclick = () => { alumno.informe = ""; go("informe"); };
     return;
   }
+}
+const WIDE = window.matchMedia("(min-width: 1024px)");
+const MODO_TXT = { simple: "Simplificada", guiada: "Extensa", libre: "Libre" };
+function updateSide() {
+  const el = $("#side-info"); if (!el) return;
+  const parts = [];
+  if (alumno && alumno.nombre.trim() && alumno.stage !== "alumno") {
+    const Q = qs(), n = Q.length;
+    const stage = alumno.stage === "q" ? `Pregunta ${alumno.i + 1} de ${n}` : alumno.stage === "libre" ? "Contándolo todo" : alumno.stage === "follow" ? "Preguntas de Claude" : alumno.informe ? "Informe redactado" : "Repaso";
+    parts.push(`<div class="si-block"><span class="si-lab">Ahora</span><b>${esc(alumno.nombre)}</b><span class="hint">${MODO_TXT[alumno.modo]} · ${stage}</span>${alumno.modo !== "libre" ? `<span class="dots" aria-hidden="true">${Q.map((q, k) => `<i class="${alumno.respuestas[q.id]?.trim() ? "done" : ""}${alumno.stage === "q" && k === alumno.i ? " now" : ""}"></i>`).join("")}</span>` : ""}</div>`);
+  }
+  if (sesion.length) parts.push(`<div class="si-block"><span class="si-lab">Esta sesión</span><b>${sesion.length} ${sesion.length === 1 ? "informe" : "informes"}</b><span class="hint">${sesion.map(x => esc(x.nombre)).join(", ")}</span></div>`);
+  const m = readField("s-materia").trim(), c = readField("s-nivel").trim();
+  if (m || c) parts.push(`<div class="si-block"><span class="si-lab">Materia</span><span>${esc([m, c].filter(Boolean).join(" · "))}</span><span class="hint">${esc(readField("s-eval"))}</span></div>`);
+  el.innerHTML = parts.join("");
 }
 function libreQ() { return `Cuéntame cómo va ${nom()} en tu materia: lo que hace bien, lo que debe mejorar y lo que le recomendarías.`; }
 function notesList() {
@@ -967,7 +1027,7 @@ const slug = s => (s || "informe").normalize("NFD").replace(/[̀-ͯ]/g, "").repl
 
 /* ---------- Sesión ---------- */
 function renderSess() {
-  $("#sess").hidden = !sesion.length;
+  $("#sess").hidden = !sesion.length; updateSide();
   $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li"><span>${esc(x.nombre)}</span><button class="btn quiet" data-scopy="${k}">Copiar</button></div>`).join("");
 }
 $("#sess-list").addEventListener("click", e => { const b = e.target.closest("[data-scopy]"); if (b) copyText(sesion[+b.dataset.scopy].texto, null, $("#r-status"), `Informe de ${sesion[+b.dataset.scopy].nombre} copiado.`); });
@@ -998,7 +1058,7 @@ $("#r-next").onclick = () => {
 loadFields(SET_IDS, "iav-set");
 loadFields(CTX_IDS, "iav-ctx");
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
-SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => saveFields(SET_IDS, "iav-set")));
+SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => { saveFields(SET_IDS, "iav-set"); updateSide(); }));
 bindCtx(); updateCode(); fillMicSlots();
 // Guía abierta hasta que el docente la cierre (se recuerda en este navegador)
 $$(".guide").forEach(g => { g.open = !LS.get("iav-guide-closed", false); g.addEventListener("toggle", () => LS.set("iav-guide-closed", !g.open)); });
