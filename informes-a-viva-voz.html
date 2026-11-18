@@ -115,6 +115,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px soli
 details{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--paper)}
 details summary{cursor:pointer;font-weight:700}
 details[open] summary{margin-bottom:10px}
+.guide{background:var(--accent-soft);border-color:transparent}
+.guide ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px;max-width:66ch}
+.guide p{margin-top:10px}
+ol.mini{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
+kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--paper)}
 footer{font-size:.82rem;color:var(--muted);text-align:center;max-width:62ch;margin:8px auto 0}
 footer a{color:var(--accent)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -129,7 +134,27 @@ footer a{color:var(--accent)}
     <span class="eyebrow">Evaluación del alumnado</span>
     <h1>Informes a viva voz</h1>
     <p class="lead" id="lead">Responde a unas preguntas hablando o escribiendo y Claude redacta el informe. Tú lo revisas y decides la versión final.</p>
-    <p class="note" id="web-note" hidden>Esta versión funciona con cualquier IA: al final copias unas instrucciones y las pegas en ChatGPT, Gemini, Claude o la que uses. Si tienes cuenta de Claude, <a href="https://claude.ai/artifact/HtbJPE7ScvEbbTwmjyjBV7" target="_blank" rel="noopener">abre la versión automática</a>: redacta y ajusta el informe sin copiar ni pegar.</p>
+    <details class="guide" id="guide-web" hidden>
+      <summary>Cómo se usa (5 pasos)</summary>
+      <ol>
+        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista» y elige la versión: simplificada (3 preguntas) o extensa (7).</li>
+        <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez el navegador te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
+        <li><b>Pulsa «Copiar instrucciones»</b> y después el botón de tu IA (ChatGPT, Gemini, Claude o Copilot). Se abre en otra pestaña: pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía. La IA te devuelve el informe redactado.</li>
+        <li><b>Copia ese informe, vuelve a esta pestaña y pégalo</b> en el recuadro grande. Revísalo, cópialo a tu plataforma de notas y pasa al siguiente alumno.</li>
+      </ol>
+      <p class="hint">El micro funciona en Chrome y Edge. En otros navegadores, escribe o usa el dictado del sistema (Windows + H). Necesitas una cuenta en la IA que uses.</p>
+      <p class="hint">¿Tienes cuenta de Claude? <a href="https://claude.ai/artifact/HtbJPE7ScvEbbTwmjyjBV7" target="_blank" rel="noopener">Usa la versión automática</a>: te ahorras los pasos 4 y 5.</p>
+    </details>
+    <details class="guide" id="guide-claude">
+      <summary>Cómo se usa (4 pasos)</summary>
+      <ol>
+        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista» y elige la versión: simplificada (3 preguntas) o extensa (7).</li>
+        <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
+        <li><b>Claude redacta el informe.</b> La primera vez te pedirá permiso para usar Claude. Revisa el texto, ajústalo si quieres y cópialo a tu plataforma de notas.</li>
+      </ol>
+    </details>
   </header>
 
   <nav class="steps" aria-label="Pasos">
@@ -220,7 +245,11 @@ footer a{color:var(--accent)}
     <div class="card">
       <div class="row between"><h2 id="h-inf">Informe</h2><span class="badge" id="inf-who"></span></div>
       <div id="web-steps" class="answer" hidden>
-        <p><b>1.</b> Copia las instrucciones. &nbsp;<b>2.</b> Pégalas en tu IA. &nbsp;<b>3.</b> Pega aquí abajo el informe que te devuelva.</p>
+        <ol class="mini">
+          <li>Pulsa <b>«Copiar instrucciones»</b>.</li>
+          <li>Pulsa el botón de tu IA, pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía.</li>
+          <li>Copia el informe que te devuelva, vuelve a esta pestaña y pégalo en el recuadro de abajo.</li>
+        </ol>
         <div class="row">
           <button class="btn" id="w-copy">Copiar instrucciones</button>
           <a class="btn quiet" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
@@ -917,6 +946,8 @@ loadFields(CTX_IDS, "iav-ctx");
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => saveFields(SET_IDS, "iav-set")));
 bindCtx(); updateCode(); fillMicSlots();
+// Guía abierta hasta que el docente la cierre (se recuerda en este navegador)
+$$(".guide").forEach(g => { g.open = !LS.get("iav-guide-closed", false); g.addEventListener("toggle", () => LS.set("iav-guide-closed", !g.open)); });
 const firstView = readField("s-materia").trim() ? "entrevista" : "ajustes";
 go(firstView);
 
@@ -924,7 +955,7 @@ go(firstView);
   if (WEB) {
     cap.dict = browserSpeech(); cap.ready = true;
     if (cap.dict) hookDictation();
-    $("#web-note").hidden = false;
+    $("#guide-web").hidden = false; $("#guide-claude").hidden = true;
     $("#lead").textContent = "Responde a unas preguntas hablando o escribiendo y la IA redacta el informe. Tú lo revisas y decides la versión final.";
     refreshAfterCaps(); return;
   }
