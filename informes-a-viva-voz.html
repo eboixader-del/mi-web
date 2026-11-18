@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Asistente para redactar informes de evaluación del alumnado: respondes por voz a unas preguntas y la IA redacta el informe.">
+<link rel="icon" href="images/ai-logo-A3QJe5Ql97SkgjeE-b0385dc0.svg">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Informes a viva voz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap">
+<style>
+/* Layout: una columna de trabajo (máx. 780px), barra de pasos arriba, una tarjeta activa por paso. Cuaderno de evaluación: papel frío, tinta azul, marca de lápiz ámbar. */
+:root{
+  --bg:#f3f6f5; --paper:#ffffff; --ink:#1b2a33; --muted:#5b6b73; --line:#d6e0df;
+  --accent:#1d6a84; --accent-ink:#ffffff; --accent-soft:#e2eff3;
+  --pencil:#b7790c; --pencil-soft:#fbf0d9;
+  --good:#2f7d4f; --warn:#b4462d; --rec:#c2332a;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a1e; --paper:#1a252b; --ink:#e4ecef; --muted:#9aaab1; --line:#2c3b42;
+  --accent:#5fb3cf; --accent-ink:#0c1a20; --accent-soft:#1d3440;
+  --pencil:#e3a83a; --pencil-soft:#3a2f17; --good:#6cc391; --warn:#e98a73; --rec:#ff6b5f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1e; --paper:#1a252b; --ink:#e4ecef; --muted:#9aaab1; --line:#2c3b42;
+  --accent:#5fb3cf; --accent-ink:#0c1a20; --accent-soft:#1d3440;
+  --pencil:#e3a83a; --pencil-soft:#3a2f17; --good:#6cc391; --warn:#e98a73; --rec:#ff6b5f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(1.6rem,4vw,2.1rem)}
+h2{font-size:1.35rem}
+h3{font-size:1.05rem}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch}
+header.top{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pencil);font-weight:700}
+
+/* pasos */
+nav.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px}
+nav.steps button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);min-width:0}
+nav.steps button .n{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+nav.steps button .t{font-weight:700;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav.steps button[aria-current="step"]{border-color:var(--accent);background:var(--accent-soft)}
+nav.steps button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:520px){nav.steps button .t{font-size:.8rem}}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:600px){.grid2{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem;min-width:0}
+label.f small,.hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:110px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--accent)}
+
+.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:8px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.quiet{background:transparent;border-color:var(--line);color:var(--ink);font-weight:400}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.end{justify-content:flex-end}
+.row.between{justify-content:space-between}
+
+/* pastillas */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.86rem;cursor:pointer;border-radius:999px;padding:5px 11px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:700}
+.chip.neg{border-style:dashed}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ctxrow{display:grid;grid-template-columns:170px 1fr;gap:10px;align-items:start;padding-block:8px;border-top:1px solid var(--line)}
+.ctxrow:first-of-type{border-top:0}
+.ctxrow .lab{font-weight:700;font-size:.9rem;padding-top:5px}
+@media (max-width:600px){.ctxrow{grid-template-columns:1fr;gap:6px}}
+
+/* micro */
+.answer{display:flex;flex-direction:column;gap:8px}
+.mic{width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);background:var(--paper);color:var(--accent);cursor:pointer;display:grid;place-items:center;flex:none}
+.mic svg{width:26px;height:26px}
+.mic.on{background:var(--rec);border-color:var(--rec);color:#fff;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--rec) 45%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none}}
+.mic:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
+.mic-row{display:flex;gap:12px;align-items:center}
+.mic-row .mic-label{font-size:.88rem;color:var(--muted)}
+.partial{min-height:1.4em;color:var(--pencil);font-style:italic;font-size:.92rem}
+.dict-tip{font-size:.85rem;color:var(--muted);background:var(--pencil-soft);border-radius:8px;padding:8px 10px}
+
+.qhead{display:flex;flex-direction:column;gap:4px}
+.qcount{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.qtext{font-size:1.15rem;font-family:var(--f-display);font-weight:500}
+.progress{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--accent);transition:width .3s}
+
+.note{border-left:4px solid var(--pencil);background:var(--pencil-soft);padding:10px 12px;border-radius:0 8px 8px 0;font-size:.92rem}
+.status{font-size:.9rem;color:var(--muted);min-height:1.3em}
+.status.err{color:var(--warn)}
+#rep{min-height:320px;font-size:1rem;line-height:1.6;background:var(--paper)}
+.count{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.count.over{color:var(--warn);font-weight:700}
+.summary{display:flex;flex-direction:column;gap:8px}
+.summary .it{border-top:1px solid var(--line);padding-top:8px}
+.summary .it b{display:block;font-size:.85rem;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.list .li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.badge{font-size:.75rem;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--pencil-soft);color:var(--pencil)}
+details{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--paper)}
+details summary{cursor:pointer;font-weight:700}
+details[open] summary{margin-bottom:10px}
+footer{font-size:.82rem;color:var(--muted);text-align:center;max-width:62ch;margin:8px auto 0}
+footer a{color:var(--accent)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.thinking::after{content:"";display:inline-block;width:1em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Evaluación del alumnado</span>
+    <h1>Informes a viva voz</h1>
+    <p class="lead" id="lead">Responde a unas preguntas hablando o escribiendo y Claude redacta el informe. Tú lo revisas y decides la versión final.</p>
+    <p class="note" id="web-note" hidden>Esta versión funciona con cualquier IA: al final copias unas instrucciones y las pegas en ChatGPT, Gemini, Claude o la que uses. Si tienes cuenta de Claude, <a href="https://claude.ai/artifact/HtbJPE7ScvEbbTwmjyjBV7" target="_blank" rel="noopener">abre la versión automática</a>: redacta y ajusta el informe sin copiar ni pegar.</p>
+  </header>
+
+  <nav class="steps" aria-label="Pasos">
+    <button data-go="ajustes"><span class="n">Paso 1</span><span class="t">Tu materia</span></button>
+    <button data-go="contexto"><span class="n">Paso 2 · opcional</span><span class="t">Centro y grupo</span></button>
+    <button data-go="entrevista"><span class="n">Paso 3</span><span class="t">Entrevista</span></button>
+    <button data-go="informe"><span class="n">Paso 4</span><span class="t">Informe</span></button>
+  </nav>
+
+  <!-- PASO 1 -->
+  <section id="v-ajustes" class="view card" aria-labelledby="h-aj">
+    <div class="row between"><h2 id="h-aj">Tu materia y el tipo de informe</h2><span class="hint">Se recuerda en este navegador</span></div>
+    <div class="grid2">
+      <label class="f">Materia, área o módulo<input type="text" id="s-materia" placeholder="Física y Química"></label>
+      <label class="f">Curso y etapa<input type="text" id="s-nivel" list="niveles" placeholder="3º de ESO"></label>
+      <datalist id="niveles">
+        <option value="1º de Primaria"><option value="2º de Primaria"><option value="3º de Primaria"><option value="4º de Primaria"><option value="5º de Primaria"><option value="6º de Primaria">
+        <option value="1º de ESO"><option value="2º de ESO"><option value="3º de ESO"><option value="4º de ESO">
+        <option value="1º de Bachillerato"><option value="2º de Bachillerato">
+        <option value="FP Básica"><option value="Ciclo de Grado Medio"><option value="Ciclo de Grado Superior"><option value="Educación Infantil">
+      </datalist>
+      <label class="f">Momento de la evaluación
+        <select id="s-eval"><option>Evaluación inicial</option><option selected>1ª evaluación</option><option>2ª evaluación</option><option>3ª evaluación</option><option>Evaluación final</option><option>Evaluación extraordinaria</option></select></label>
+      <label class="f">A quién va dirigido
+        <select id="s-dest">
+          <option value="familia">A la familia</option>
+          <option value="alumno">Al alumno o alumna (de tú)</option>
+          <option value="boletin">Comentario para el boletín de notas</option>
+          <option value="equipo">Al equipo docente o tutor/a (acta)</option>
+        </select></label>
+      <label class="f">Idioma del informe
+        <select id="s-idioma"><option>Castellano</option><option>Valenciano</option><option>Catalán</option><option>Euskera</option><option>Gallego</option><option>Inglés</option><option>Francés</option></select></label>
+      <label class="f">Idioma en el que hablas al micro
+        <select id="s-voz"><option value="es-ES">Castellano</option><option value="ca-ES">Valenciano / Catalán</option><option value="eu-ES">Euskera</option><option value="gl-ES">Gallego</option><option value="en-GB">Inglés</option><option value="fr-FR">Francés</option></select></label>
+      <label class="f">Formato
+        <select id="s-formato"><option value="apartados">Por apartados (positivo, a mejorar, propuestas)</option><option value="parrafo">Un solo párrafo</option></select></label>
+      <label class="f">Extensión
+        <select id="s-ext"><option value="breve">Breve (unas 80 palabras)</option><option value="media" selected>Media (unas 150 palabras)</option><option value="detallada">Detallada (unas 250 palabras)</option></select></label>
+      <label class="f">Tono
+        <select id="s-tono"><option value="cercano">Cercano y motivador</option><option value="neutro" selected>Neutro y profesional</option><option value="formal">Formal</option></select></label>
+      <label class="f">Límite de caracteres <small>Opcional. Útil si tu plataforma de notas limita el comentario.</small><input type="number" id="s-chars" min="100" step="50" placeholder="Sin límite"></label>
+    </div>
+    <label class="f">Frase fija al final del informe <small>Opcional. Se añade tal cual en todos los informes (una firma, un aviso sobre el uso de IA…).</small>
+      <textarea id="s-firma" style="min-height:70px" placeholder="Por ejemplo: «Quedo a vuestra disposición para cualquier duda.»"></textarea></label>
+    <label class="check"><input type="checkbox" id="s-leer"> <span>Leer las preguntas en voz alta <span class="hint">(si tu navegador lo permite)</span></span></label>
+    <div class="row end"><button class="btn" data-go="contexto">Siguiente: centro y grupo</button></div>
+  </section>
+
+  <!-- PASO 2 -->
+  <section id="v-contexto" class="view card" aria-labelledby="h-ctx" hidden>
+    <div class="row between"><h2 id="h-ctx">Contexto del centro y del grupo</h2><span class="badge">Opcional</span></div>
+    <p class="hint">Ayuda a ajustar el tono del informe al grupo, pero no es necesario. Marca solo lo que quieras. Pulsa otra vez una opción para quitarla. No escribas nombres de alumnos aquí.</p>
+    <label class="check"><input type="checkbox" id="c-usar" checked> <span>Tener en cuenta este contexto al redactar</span></label>
+    <h3>Centro</h3>
+    <div class="grid2">
+      <label class="f">Nombre del centro <small>Opcional</small><input type="text" id="c-nombre"></label>
+      <label class="f">Localidad <small>Opcional</small><input type="text" id="c-loc"></label>
+    </div>
+    <div id="ctx-centro"></div>
+    <label class="f">Otros rasgos del centro<textarea id="c-centro-libre" style="min-height:70px" placeholder="Proyecto lingüístico, programas, metodologías…"></textarea></label>
+    <h3>Grupo</h3>
+    <div class="grid2">
+      <label class="f">Número de alumnos<input type="number" id="c-num" min="1" max="60"></label>
+      <label class="f">Alumnos repetidores<input type="number" id="c-rep" min="0" max="60"></label>
+    </div>
+    <div id="ctx-grupo"></div>
+    <label class="f">Alumnado con necesidades específicas y otros rasgos <small>Sin nombres. Ej.: «2 alumnos con TDAH, 1 con altas capacidades».</small><textarea id="c-grupo-libre" style="min-height:70px"></textarea></label>
+    <details>
+      <summary>Compartir este contexto con tu equipo</summary>
+      <div class="answer">
+        <p class="hint">Copia el código y pásaselo a tus compañeros del mismo grupo. Ellos lo pegan aquí y pulsan «Cargar».</p>
+        <textarea id="c-code" style="min-height:70px" aria-label="Código de contexto"></textarea>
+        <div class="row"><button class="btn quiet" id="c-copy">Copiar código</button><button class="btn quiet" id="c-load">Cargar código pegado</button><button class="btn quiet" id="c-clear">Borrar contexto</button></div>
+        <p class="status" id="c-status" role="status"></p>
+      </div>
+    </details>
+    <div class="row between"><button class="btn ghost" data-go="ajustes">Atrás</button><button class="btn" data-go="entrevista">Siguiente: entrevista</button></div>
+  </section>
+
+  <!-- PASO 3 -->
+  <section id="v-entrevista" class="view" aria-labelledby="h-iv" hidden>
+    <h2 id="h-iv" class="sr">Entrevista</h2>
+    <div id="iv" class="card"></div>
+  </section>
+
+  <!-- PASO 4 -->
+  <section id="v-informe" class="view" aria-labelledby="h-inf" hidden>
+    <div class="card">
+      <div class="row between"><h2 id="h-inf">Informe</h2><span class="badge" id="inf-who"></span></div>
+      <div id="web-steps" class="answer" hidden>
+        <p><b>1.</b> Copia las instrucciones. &nbsp;<b>2.</b> Pégalas en tu IA. &nbsp;<b>3.</b> Pega aquí abajo el informe que te devuelva.</p>
+        <div class="row">
+          <button class="btn" id="w-copy">Copiar instrucciones</button>
+          <a class="btn quiet" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
+          <a class="btn quiet" href="https://gemini.google.com/" target="_blank" rel="noopener">Gemini</a>
+          <a class="btn quiet" href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+          <a class="btn quiet" href="https://copilot.microsoft.com/" target="_blank" rel="noopener">Copilot</a>
+        </div>
+        <p class="hint">¿Quieres cambios? Pídeselos a tu IA en la misma conversación: «más breve», «más cercano», «tradúcelo al valenciano»…</p>
+      </div>
+      <p class="status" id="r-status" role="status"></p>
+      <textarea id="rep" aria-label="Texto del informe" placeholder="Aquí aparecerá el informe. Puedes editarlo directamente."></textarea>
+      <div class="row between"><span class="count" id="r-count"></span>
+        <div class="row"><button class="btn quiet" id="r-stop" hidden>Detener</button><button class="btn quiet" id="r-regen">Volver a redactar</button></div></div>
+      <div class="row">
+        <button class="btn" id="r-copy">Copiar</button>
+        <button class="btn ghost" id="r-dl">Descargar .txt</button>
+        <button class="btn ghost" id="r-next">Guardar y siguiente alumno</button>
+      </div>
+      <div class="note"><b>Revisa antes de usarlo.</b> Comprueba que todo lo que dice es cierto y que suena a ti. La última palabra es siempre del docente.</div>
+    </div>
+
+    <div class="card" id="tweaks">
+      <h3>Ajustar el texto</h3>
+      <div class="row">
+        <button class="btn quiet" data-tweak="breve">Más breve</button>
+        <button class="btn quiet" data-tweak="cercano">Más cercano</button>
+        <button class="btn quiet" data-tweak="formal">Más formal</button>
+        <button class="btn quiet" data-tweak="positivo">Suavizar lo negativo</button>
+        <button class="btn quiet" data-tweak="concreto">Más concreto</button>
+      </div>
+      <div class="row">
+        <select id="r-lang" aria-label="Traducir a" style="width:auto"><option>Valenciano</option><option>Castellano</option><option>Catalán</option><option>Euskera</option><option>Gallego</option><option>Inglés</option><option>Francés</option></select>
+        <button class="btn quiet" id="r-trad">Traducir</button>
+      </div>
+      <div class="answer">
+        <label class="f" for="r-instr">Otra indicación <small>Díctala o escríbela: «menciona que ha mejorado en el laboratorio», «quita la parte de la puntualidad»…</small></label>
+        <div class="mic-row"><span class="micslot" data-for="r-instr"></span><textarea id="r-instr" style="min-height:60px"></textarea></div>
+        <div class="partial" data-partial="r-instr"></div>
+        <div class="row end"><button class="btn quiet" id="r-apply">Aplicar indicación</button></div>
+      </div>
+    </div>
+
+    <details id="fallback">
+      <summary>¿No puedes usar Claude aquí? Copia las instrucciones para otra IA</summary>
+      <div class="answer">
+        <p class="hint">Si la página no puede conectar con Claude (por ejemplo, sin sesión iniciada), copia este texto y pégalo en la IA que uses en tu centro.</p>
+        <textarea id="r-prompt" readonly style="min-height:160px" aria-label="Instrucciones para otra IA"></textarea>
+        <div class="row"><button class="btn quiet" id="r-pcopy">Copiar instrucciones</button></div>
+      </div>
+    </details>
+
+    <div class="card" id="sess" hidden>
+      <div class="row between"><h3>Informes de esta sesión</h3><button class="btn quiet" id="s-dlall">Descargar todos (.txt)</button></div>
+      <p class="hint">Solo existen mientras la página esté abierta. No se guardan en ningún sitio: descárgalos o cópialos antes de cerrar.</p>
+      <div class="list" id="sess-list"></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>Cómo funciona y privacidad</summary>
+    <div class="summary">
+      <p><b>1. Tu materia.</b> Se rellena una vez y se recuerda en este navegador.</p>
+      <p><b>2. Centro y grupo.</b> Opcional. Puedes compartir el contexto con tu equipo mediante un código.</p>
+      <p><b>3. Entrevista.</b> Elige «Simplificada» (3 preguntas: lo que hace bien, lo que debe mejorar y qué le recomiendas), «Extensa» (7 preguntas, puedes saltar las que quieras) o «Libre» (lo cuentas todo de una vez). En la extensa y la libre, Claude te hará como mucho 2 preguntas más si falta algo importante.</p>
+      <p><b>4. Informe.</b> Claude lo redacta solo con lo que has dicho. Puedes editarlo, ajustarlo y copiarlo a tu plataforma de notas.</p>
+      <p><b>Micrófono.</b> Pulsa el botón del micro y habla; vuelve a pulsarlo para terminar. Si tu navegador no lo permite, usa el dictado del sistema: <b>Windows + H</b> en Windows, el micro del teclado en el móvil o <b>Fn dos veces</b> en Mac.</p>
+      <p><b>Privacidad.</b> Usa solo el nombre de pila. No incluyas apellidos, diagnósticos médicos ni datos de salud. Lo que dices del alumnado no se guarda en esta página: al cerrarla, desaparece. Solo se recuerdan tus ajustes y el contexto del grupo.</p>
+    </div>
+  </details>
+
+  <footer>Basado en la plantilla de comentarios de evaluación de Guillermo Antón Pardo (<a href="https://profesorproductivo.com" target="_blank" rel="noopener">profesorproductivo.com</a>), adaptada por @eboixader. · <a href="iag-en-el-aula.html">Volver a IAg en el aula</a></footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+
+/* ---------- Datos ---------- */
+const CTX_CENTRO = [
+  {id:"enfoque", lab:"Enfoque educativo", opts:["Tradicional","Innovador","Mixto"]},
+  {id:"barrio", lab:"Entorno socioeconómico", opts:["Clase alta","Clase media","Clase baja","Diverso"]},
+  {id:"inmig", lab:"Población migrante", opts:["Apenas hay","Bastante","Muy numerosa"]},
+  {id:"familias", lab:"Familias", opts:["Mayoría con situación estable","Bastantes situaciones familiares complejas","Abundancia de familias monoparentales"]},
+  {id:"implic", lab:"Implicación de las familias", opts:["Alta, mucha demanda","Media","Baja, poca demanda"]},
+  {id:"lengua", lab:"Lengua habitual en casa", opts:["Castellano","Lengua cooficial de la comunidad","Ambas","Otras lenguas"]}
+];
+const CTX_GRUPO = [
+  {id:"divcult", lab:"Diversidad cultural", opts:["Alta","Media","Baja"]},
+  {id:"estilos", lab:"Estilos de aprendizaje", opts:["Muy diversos","Bastante homogéneos"]},
+  {id:"motiv", lab:"Motivación", opts:["La mayoría está motivada","Una parte importante no está motivada","Desigual"]},
+  {id:"comport", lab:"Comportamiento", opts:["Suele ser favorable","No suele ser favorable","Irregular"]},
+  {id:"partic", lab:"Participación", opts:["Favorable","Escasa"]},
+  {id:"relac", lab:"Relaciones entre el alumnado", opts:["Buenas","Con conflictos"]},
+  {id:"digital", lab:"Competencia digital", opts:["Alta","Media","Baja"]},
+  {id:"stem", lab:"Competencia STEM (matemática, ciencia y tecnología)", opts:["Elevada","Variada","Baja"]},
+  {id:"castell", lab:"Dominio del castellano", opts:["Bueno","Mejorable"]},
+  {id:"cooficial", lab:"Dominio de la lengua cooficial", opts:["Bueno","Mejorable","No aplica"]}
+];
+const QUESTIONS = [
+  {id:"aprend", tit:"Aprendizaje de la materia",
+   q:n=>`¿Cómo va ${n} con los contenidos de la materia? ¿Qué domina y dónde tiene más dificultades?`,
+   pos:["Comprende los conceptos clave","Aplica lo aprendido a problemas nuevos","Hace preguntas que muestran comprensión","Investiga por iniciativa propia","Relaciona unos temas con otros"],
+   neg:["Tiene lagunas en conocimientos básicos","Memoriza sin llegar a comprender","No relaciona unos temas con otros","Depende solo de lo visto en clase"]},
+  {id:"partic", tit:"Participación y comunicación",
+   q:n=>`¿Cómo participa ${n} en clase? ¿Cómo se expresa y cómo escucha?`,
+   pos:["Muestra interés por la materia","Comparte sus ideas","Contribuye a los debates","Se expresa con claridad","Escucha con atención"],
+   neg:["Participa poco","Le cuesta expresar sus ideas","Habla fuera de turno","Monopoliza la conversación","Hace comentarios fuera de lugar"]},
+  {id:"equipo", tit:"Trabajo en equipo",
+   q:n=>`¿Y cuando trabaja en grupo? ¿Qué papel suele tener ${n}?`,
+   pos:["Escucha y valora las ideas de los demás","Cumple con su parte","Ayuda a sus compañeros","Lidera de forma positiva","Promueve la colaboración"],
+   neg:["No contribuye de forma equitativa","Le cuesta integrarse en el equipo","Lidera de forma autoritaria","Se queda en un papel pasivo"]},
+  {id:"respon", tit:"Responsabilidad y hábitos de estudio",
+   q:n=>`¿Cómo es ${n} con las tareas, los plazos, el material y el estudio en casa?`,
+   pos:["Cumple tareas y plazos","Trae el material necesario","Sigue bien las instrucciones","Mantiene el material organizado","Estudia con constancia","Es puntual"],
+   neg:["Entrega trabajos tarde o incompletos","Olvida el material","Llega tarde con frecuencia","Estudia a última hora","Se distrae al estudiar","No tiene un método de estudio"]},
+  {id:"actitud", tit:"Actitud, motivación y autonomía",
+   q:n=>`¿Qué actitud muestra ${n}? ¿Trabaja con autonomía, se esfuerza, persevera?`,
+   pos:["Muestra entusiasmo por aprender","Persevera ante las dificultades","Trabaja de forma autónoma","Toma la iniciativa","Pide ayuda cuando la necesita","Se esfuerza mucho"],
+   neg:["Necesita supervisión constante","Se rinde con facilidad","Muestra desinterés","Hace solo lo mínimo","Le cuesta valorar sus capacidades"]},
+  {id:"convive", tit:"Convivencia y bienestar",
+   q:n=>`¿Cómo es su comportamiento y su relación con los demás? ¿Has notado algo en cómo se siente ${n}?`,
+   pos:["Respeta las normas del aula","Es amable con compañeros y profesorado","Contribuye a un buen clima de clase","Es empático","Gestiona bien sus emociones"],
+   neg:["Interrumpe o distrae a otros","Hace comentarios inapropiados","Le cuesta expresar sus emociones","Culpa a otros de sus errores","Tiende a aislarse"]},
+  {id:"otros", tit:"Evolución y propuestas",
+   q:n=>`Para terminar: ¿cómo ha evolucionado ${n} y qué le recomendarías? Si quieres, añade la calificación o las medidas de apoyo.`,
+   pos:["Ha mejorado respecto a la evaluación anterior","Se mantiene estable","Destacar su esfuerzo","Recomendar seguir así"],
+   neg:["Ha empeorado respecto a la evaluación anterior","Tiene medidas de apoyo o adaptación","Recomendar planificar el estudio semanal","Recomendar repasar a diario","Recomendar pedir ayuda en clase","Recomendar más lectura"]}
+];
+const QUESTIONS_SIMPLE = [
+  {id:"s-bien", tit:"Lo que hace bien",
+   q:n=>`¿Qué hace bien ${n}? Piensa en lo que aprende, en su actitud y en cómo trabaja.`,
+   pos:["Comprende los conceptos clave","Aplica lo aprendido a problemas nuevos","Participa y comparte sus ideas","Trabaja bien en equipo","Cumple tareas y plazos","Se esfuerza mucho","Trabaja de forma autónoma","Respeta las normas y contribuye a un buen clima"],
+   neg:[]},
+  {id:"s-mejorar", tit:"Lo que debe mejorar",
+   q:n=>`¿Qué debe mejorar ${n}?`,
+   pos:[],
+   neg:["Tiene lagunas en conocimientos básicos","Memoriza sin llegar a comprender","Participa poco","Entrega trabajos tarde o incompletos","Olvida el material","Estudia a última hora","Necesita supervisión constante","Se rinde con facilidad","Interrumpe o distrae a otros"]},
+  {id:"s-recom", tit:"Evolución y recomendaciones",
+   q:n=>`¿Qué le recomiendas a ${n} para la próxima evaluación? Si quieres, añade cómo ha evolucionado o su calificación.`,
+   pos:["Ha mejorado respecto a la evaluación anterior","Se mantiene estable","Recomendar seguir así"],
+   neg:["Ha empeorado respecto a la evaluación anterior","Recomendar planificar el estudio semanal","Recomendar repasar a diario","Recomendar pedir ayuda en clase","Recomendar más lectura"]}
+];
+const qs = () => alumno?.modo === "simple" ? QUESTIONS_SIMPLE : QUESTIONS;
+const EJEMPLO = {
+  nombre:"Lucía (ejemplo)", genero:"alumna",
+  respuestas:{
+    aprend:"Entiende bien los conceptos de la unidad de materia y cambios químicos, sobre todo en el laboratorio. Le cuestan los problemas de cálculo, se lía con los cambios de unidades.",
+    partic:"Participa poco en voz alta, pero cuando pregunta las preguntas son muy buenas.",
+    equipo:"En el laboratorio trabaja muy bien en grupo, ayuda a los compañeros.",
+    respon:"Entrega todo a tiempo, pero estudia el día antes del examen.",
+    actitud:"",
+    convive:"Muy respetuosa, buen clima.",
+    otros:"Ha mejorado respecto a la evaluación anterior, ha pasado de un 5 a un 6,5. Le recomendaría hacer ejercicios de cálculo cada semana."
+  }
+};
+
+/* ---------- Estado ---------- */
+const SET_IDS = ["s-materia","s-nivel","s-eval","s-dest","s-idioma","s-voz","s-formato","s-ext","s-tono","s-chars","s-firma","s-leer"];
+const CTX_IDS = ["c-usar","c-nombre","c-loc","c-centro-libre","c-num","c-rep","c-grupo-libre"];
+let ctxSel = LS.get("iav-ctxsel", {});
+let alumno = null;           // {nombre, genero, modo, respuestas:{}, libre, follow:[{q,a}], i, stage}
+let sesion = [];             // [{nombre, texto}]
+let lastReportFor = null;
+
+const cap = { sample:null, dict:null, tts:null, dl:null, ready:false };
+const WEB = !(window.claude && typeof window.claude.use === "function");   // fuera de claude.ai (p. ej. GitHub Pages)
+
+/* Micro del navegador (Chrome/Edge) para la versión web, con la misma forma que el dictado de Claude */
+function browserSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return null;
+  let rec = null, on = false, reason = null; const H = { p: [], f: [], s: [] };
+  const emit = (k, e) => H[k].forEach(fn => { try { fn(e); } catch {} });
+  const sub = k => fn => { H[k].push(fn); return () => {}; };
+  return {
+    start() {
+      return new Promise((res, rej) => {
+        try {
+          rec = new SR(); rec.lang = readField("s-voz"); rec.continuous = true; rec.interimResults = true;
+          rec.onstart = () => { on = true; emit("s", { state: "listening" }); res(); };
+          rec.onresult = ev => {
+            let interim = "";
+            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+              const r = ev.results[i];
+              if (r.isFinal) emit("f", { text: r[0].transcript.trim() }); else interim += r[0].transcript;
+            }
+            emit("p", { text: interim });
+          };
+          rec.onerror = ev => {
+            reason = (ev.error === "not-allowed" || ev.error === "service-not-allowed") ? "not_granted"
+              : (ev.error === "no-speech" || ev.error === "aborted") ? "stopped" : "upstream_error";
+            if (!on) rej({ code: reason });
+          };
+          rec.onend = () => { const was = on; on = false; emit("s", { state: "idle", reason: reason || "stopped" }); if (!was) rej({ code: reason || "upstream_error" }); reason = null; };
+          emit("s", { state: "starting" }); rec.start();
+        } catch { rej({ code: "upstream_error" }); }
+      });
+    },
+    stop() { try { rec && rec.stop(); } catch {} return Promise.resolve(); },
+    active() { return on; },
+    onPartial: sub("p"), onFinal: sub("f"), onState: sub("s")
+  };
+}
+
+function readField(id) { const el = document.getElementById(id); return el.type === "checkbox" ? el.checked : el.value; }
+function writeField(id, v) { const el = document.getElementById(id); if (v === undefined || v === null) return; if (el.type === "checkbox") el.checked = !!v; else el.value = v; }
+function S() { const o = {}; SET_IDS.forEach(id => o[id.slice(2)] = readField(id)); return o; }
+function loadFields(ids, key) { const d = LS.get(key, {}); ids.forEach(id => writeField(id, d[id])); }
+function saveFields(ids, key) { const d = {}; ids.forEach(id => d[id] = readField(id)); LS.set(key, d); }
+
+/* ---------- Navegación ---------- */
+const VIEWS = ["ajustes","contexto","entrevista","informe"];
+function go(v) {
+  stopMic();
+  VIEWS.forEach(n => { $("#v-" + n).hidden = n !== v; });
+  $$("nav.steps button").forEach(b => b.toggleAttribute("aria-current", false));
+  const b = $(`nav.steps button[data-go="${v}"]`); if (b) b.setAttribute("aria-current", "step");
+  if (v === "entrevista") renderIV();
+  if (v === "informe") enterInforme();
+  LS.set("iav-view", v === "informe" && !alumno ? "entrevista" : v);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); }
+});
+
+/* ---------- Contexto ---------- */
+function renderCtxRows(cont, rows) {
+  cont.innerHTML = rows.map(r => `<div class="ctxrow"><span class="lab">${esc(r.lab)}</span><div class="chips">${
+    r.opts.map(o => `<button type="button" class="chip" data-ctx="${r.id}" data-v="${esc(o)}" aria-pressed="${ctxSel[r.id] === o}">${esc(o)}</button>`).join("")
+  }</div></div>`).join("");
+}
+function bindCtx() {
+  renderCtxRows($("#ctx-centro"), CTX_CENTRO);
+  renderCtxRows($("#ctx-grupo"), CTX_GRUPO);
+  $("#v-contexto").addEventListener("click", e => {
+    const c = e.target.closest("[data-ctx]"); if (!c) return;
+    const id = c.dataset.ctx, v = c.dataset.v;
+    ctxSel[id] = ctxSel[id] === v ? undefined : v;
+    if (!ctxSel[id]) delete ctxSel[id];
+    $$(`[data-ctx="${id}"]`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === ctxSel[id]));
+    LS.set("iav-ctxsel", ctxSel); updateCode();
+  });
+  CTX_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(CTX_IDS, "iav-ctx"); updateCode(); }));
+  $("#c-copy").onclick = () => copyText($("#c-code").value, $("#c-code"), $("#c-status"), "Código copiado.");
+  $("#c-load").onclick = () => {
+    try {
+      const d = JSON.parse(decodeURIComponent(escape(atob($("#c-code").value.trim()))));
+      ctxSel = d.sel || {}; LS.set("iav-ctxsel", ctxSel);
+      CTX_IDS.forEach(id => writeField(id, d.f?.[id])); saveFields(CTX_IDS, "iav-ctx");
+      renderCtxRows($("#ctx-centro"), CTX_CENTRO); renderCtxRows($("#ctx-grupo"), CTX_GRUPO);
+      setStatus($("#c-status"), "Contexto cargado.");
+    } catch { setStatus($("#c-status"), "El código no es válido. Cópialo entero y vuelve a pegarlo.", true); }
+  };
+  $("#c-clear").onclick = () => {
+    ctxSel = {}; LS.set("iav-ctxsel", ctxSel);
+    CTX_IDS.forEach(id => writeField(id, id === "c-usar" ? true : "")); saveFields(CTX_IDS, "iav-ctx");
+    renderCtxRows($("#ctx-centro"), CTX_CENTRO); renderCtxRows($("#ctx-grupo"), CTX_GRUPO); updateCode();
+    setStatus($("#c-status"), "Contexto borrado.");
+  };
+}
+function updateCode() {
+  const f = {}; CTX_IDS.forEach(id => f[id] = readField(id));
+  try { $("#c-code").value = btoa(unescape(encodeURIComponent(JSON.stringify({ sel: ctxSel, f })))); } catch {}
+}
+function contextText() {
+  if (!readField("c-usar")) return "";
+  const parts = [];
+  const nom = readField("c-nombre").trim(), loc = readField("c-loc").trim();
+  if (nom || loc) parts.push(`Centro: ${[nom, loc].filter(Boolean).join(", ")}.`);
+  CTX_CENTRO.forEach(r => ctxSel[r.id] && parts.push(`${r.lab} del centro: ${ctxSel[r.id].toLowerCase()}.`));
+  const cl = readField("c-centro-libre").trim(); if (cl) parts.push(cl);
+  const num = readField("c-num"), rep = readField("c-rep");
+  if (num) parts.push(`El grupo tiene ${num} alumnos.`);
+  if (rep !== "") parts.push(rep === "0" ? "No hay alumnos repetidores." : `Hay ${rep} alumnos repetidores.`);
+  CTX_GRUPO.forEach(r => ctxSel[r.id] && parts.push(`${r.lab} del grupo: ${ctxSel[r.id].toLowerCase()}.`));
+  const gl = readField("c-grupo-libre").trim(); if (gl) parts.push(gl);
+  return parts.join(" ");
+}
+
+/* ---------- Micrófono (dictado) y lectura en voz alta ---------- */
+const MIC_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`;
+let micTarget = null;
+function micHTML(forId) {
+  if (cap.dict) return `<button type="button" class="mic" data-mic="${forId}" aria-label="Dictar con el micrófono" aria-pressed="false">${MIC_SVG}</button>`;
+  return "";
+}
+function fillMicSlots(root = document) {
+  $$(".micslot", root).forEach(s => { s.innerHTML = micHTML(s.dataset.for); s.hidden = !cap.dict; });
+}
+function dictTip() {
+  if (cap.dict) return `<p class="mic-label">Pulsa el micro, habla y vuelve a pulsarlo al terminar. También puedes escribir.</p>`;
+  return `<p class="dict-tip">Para dictar, usa el dictado de tu sistema: <b>Windows + H</b> en Windows, el micro del teclado en el móvil o <b>Fn dos veces</b> en Mac.</p>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-mic]"); if (!b || !cap.dict) return;
+  const ta = document.getElementById(b.dataset.mic);
+  if (cap.dict.active()) { cap.dict.stop().catch(() => {}); return; }
+  micTarget = ta;
+  const p = cap.dict.start(dictNoLang ? undefined : { language: readField("s-voz").slice(0, 2) });
+  if (cap.tts) { try { cap.tts.stop().catch(() => {}); } catch {} }
+  p.catch(err => micError(err?.code));
+});
+let dictNoLang = false;
+function micError(code) {
+  switch (code) {
+    case "stopped": case "viewer_stopped": case "hidden": return;
+    case "dismissed": flashPartial("Has cerrado el aviso de permiso. Pulsa otra vez el micro y elige «Permitir»."); return;
+    case "not_granted": flashPartial("El micro está bloqueado. Revisa el permiso del micrófono en tu navegador (icono junto a la dirección) o en el menú Permisos de la página, y recarga. Mientras, puedes escribir o usar Windows + H."); return;
+    case "unavailable":
+      if (!dictNoLang) { dictNoLang = true; flashPartial("El dictado no admite ese idioma aquí. Pulsa otra vez el micro: probaré con el idioma de tu navegador."); }
+      else { flashPartial("El dictado no está disponible en tu cuenta o en esta ventana. Usa Windows + H (o el micro del teclado del móvil)."); }
+      return;
+    case "rate_limited": flashPartial("Hay demasiados dictados a la vez. Espera unos segundos y vuelve a pulsar el micro."); return;
+    case "no_gesture": flashPartial("Pulsa el micro directamente con el ratón o el dedo para activarlo."); return;
+    default: flashPartial(`No se ha podido activar el micro (motivo: ${code || "desconocido"}). Prueba de nuevo o escribe la respuesta.`);
+  }
+}
+function partialEl() { return micTarget ? $(`[data-partial="${micTarget.id}"]`) : null; }
+function flashPartial(t) { const p = partialEl(); if (p) p.textContent = t; }
+function setMicButtons(on) {
+  $$("[data-mic]").forEach(b => { const me = micTarget && b.dataset.mic === micTarget.id && on; b.classList.toggle("on", me); b.setAttribute("aria-pressed", me); b.setAttribute("aria-label", me ? "Detener el dictado" : "Dictar con el micrófono"); });
+}
+function stopMic() { if (cap.dict && cap.dict.active()) cap.dict.stop().catch(() => {}); if (cap.tts) { try { cap.tts.stop(); } catch {} } }
+function refreshMicUI() { fillMicSlots(); if ($("#v-entrevista").hidden === false) renderIV(); }
+function hookDictation() {
+  const d = cap.dict;
+  d.onPartial(({ text }) => { const p = partialEl(); if (p) p.textContent = text; });
+  d.onFinal(({ text }) => {
+    if (!micTarget || !text) return;
+    const cur = micTarget.value.trim();
+    micTarget.value = cur ? cur + (/[.!?…]$/.test(cur) ? " " : ". ") + text : text;
+    micTarget.dispatchEvent(new Event("input", { bubbles: true }));
+    const p = partialEl(); if (p) p.textContent = "";
+  });
+  d.onState(({ state, reason }) => {
+    setMicButtons(state === "listening" || state === "starting");
+    if (state === "idle") {
+      const p = partialEl(); if (p) p.textContent = "";
+      if (reason && reason !== "stopped") micError(reason);
+    }
+  });
+}
+function speak(text) {
+  if (!cap.tts || !readField("s-leer")) return;
+  const lang = { "es-ES":"es", "ca-ES":"ca", "eu-ES":"eu", "gl-ES":"gl", "en-GB":"en", "fr-FR":"fr" }[readField("s-voz")] || "es";
+  cap.tts.speak(text, { language: lang }).catch(() => {});
+}
+
+/* ---------- Entrevista ---------- */
+function nom() { return alumno?.nombre?.replace(/\s*\(ejemplo\)\s*/i, "") || "el alumno"; }
+function newAlumno() { return { nombre:"", genero:"alumno", modo:LS.get("iav-modo", "simple"), respuestas:{}, sel:{}, libre:"", follow:[], i:0, stage:"alumno", informe:"" }; }
+function renderIV() {
+  stopMic();
+  if (!alumno) alumno = newAlumno();
+  const iv = $("#iv"), st = alumno.stage;
+  if (st === "alumno") {
+    iv.innerHTML = `
+      <div class="row between"><h2>¿De quién es el informe?</h2><button class="btn quiet" id="a-ej">Ver un ejemplo</button></div>
+      <div class="grid2">
+        <label class="f">Nombre del alumno o alumna <small>Solo el nombre de pila, sin apellidos.</small><input type="text" id="a-nombre" value="${esc(alumno.nombre)}" autocomplete="off"></label>
+        <div class="f"><span>Para la concordancia</span><div class="chips" role="radiogroup" aria-label="Género gramatical">
+          ${[["alumno","Alumno"],["alumna","Alumna"],["neutro","Lenguaje neutro"]].map(([v,l]) => `<button type="button" class="chip" role="radio" data-gen="${v}" aria-pressed="${alumno.genero===v}" aria-checked="${alumno.genero===v}">${l}</button>`).join("")}
+        </div></div>
+      </div>
+      <div class="f"><span>¿Cómo prefieres contarlo?</span><div class="chips" role="radiogroup" aria-label="Modo de entrevista">
+        ${[["simple","Simplificada: 3 preguntas"],["guiada","Extensa: 7 preguntas"],["libre","Libre: lo cuento todo de una vez"]].map(([v,l]) => `<button type="button" class="chip" role="radio" data-modo="${v}" aria-pressed="${alumno.modo===v}" aria-checked="${alumno.modo===v}">${l}</button>`).join("")}
+      </div><span class="hint">${{simple:"Lo que hace bien, lo que debe mejorar y qué le recomiendas. La más rápida.", guiada:"Aprendizaje, participación, equipo, responsabilidad, actitud, convivencia y evolución." + (WEB ? "" : " Al final, Claude puede hacerte 2 preguntas más."), libre:"Lo dictas todo seguido." + (WEB ? "" : " Al final, Claude puede hacerte 2 preguntas más.")}[alumno.modo]}</span></div>
+      ${!readField("s-materia").trim() ? `<p class="note">Aún no has indicado tu materia. <a href="#" data-go="ajustes">Complétala en el paso 1</a> para que el informe sea más preciso.</p>` : ""}
+      <p class="status err" id="a-err" role="alert"></p>
+      <div class="row end"><button class="btn" id="a-go">Empezar</button></div>`;
+    $("#a-nombre").addEventListener("input", e => alumno.nombre = e.target.value);
+    iv.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => { alumno.genero = b.dataset.gen; renderIV(); $("#a-nombre").focus(); });
+    iv.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => { alumno.modo = b.dataset.modo; LS.set("iav-modo", alumno.modo); renderIV(); });
+    $("#a-ej").onclick = () => {
+      alumno = newAlumno(); Object.assign(alumno, { nombre: EJEMPLO.nombre, genero: EJEMPLO.genero, modo: "guiada", respuestas: { ...EJEMPLO.respuestas }, stage: "revisar" });
+      renderIV();
+    };
+    $("#a-go").onclick = () => {
+      if (!alumno.nombre.trim()) { $("#a-err").textContent = "Escribe el nombre para poder empezar."; $("#a-nombre").focus(); return; }
+      alumno.stage = alumno.modo === "libre" ? "libre" : "q"; alumno.i = 0; renderIV();
+      speak(alumno.modo === "libre" ? libreQ() : qs()[0].q(nom()));
+    };
+    return;
+  }
+  if (st === "q") {
+    const Q = qs(), q = Q[alumno.i], n = Q.length, val = alumno.respuestas[q.id] || "";
+    iv.innerHTML = `
+      <div class="progress" aria-hidden="true"><i style="width:${(alumno.i / n) * 100}%"></i></div>
+      <div class="qhead"><span class="qcount">Pregunta ${alumno.i + 1} de ${n} · ${esc(q.tit)}</span>
+        <p class="qtext" id="q-text">${esc(q.q(nom()))}</p></div>
+      <div class="answer">
+        <div class="mic-row"><span class="micslot" data-for="q-ans"></span><textarea id="q-ans" aria-labelledby="q-text" placeholder="Habla o escribe con tus palabras. No hace falta redactar bien.">${esc(val)}</textarea></div>
+        <div class="partial" data-partial="q-ans"></div>
+        ${dictTip()}
+      </div>
+      <details ${alumno.i === 0 ? "" : ""}><summary>Ideas rápidas (toca para añadir)</summary>
+        <div class="answer"><div class="chips">${q.pos.map(t => `<button type="button" class="chip" data-add="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+        <div class="chips">${q.neg.map(t => `<button type="button" class="chip neg" data-add="${esc(t)}">${esc(t)}</button>`).join("")}</div></div>
+      </details>
+      <div class="row between">
+        <button class="btn ghost" id="q-prev">${alumno.i === 0 ? "Cambiar alumno" : "Anterior"}</button>
+        <div class="row"><button class="btn quiet" id="q-skip">Saltar</button><button class="btn" id="q-next">${alumno.i === n - 1 ? "Terminar" : "Siguiente"}</button></div>
+      </div>`;
+    fillMicSlots(iv);
+    const ta = $("#q-ans");
+    ta.addEventListener("input", () => alumno.respuestas[q.id] = ta.value);
+    iv.querySelectorAll("[data-add]").forEach(b => b.onclick = () => {
+      const cur = ta.value.trim(); ta.value = cur ? cur + (/[.!?…]$/.test(cur) ? " " : ". ") + b.dataset.add + "." : b.dataset.add + ".";
+      ta.dispatchEvent(new Event("input")); b.setAttribute("aria-pressed", "true");
+    });
+    $("#q-prev").onclick = () => { if (alumno.i === 0) alumno.stage = "alumno"; else alumno.i--; renderIV(); };
+    const adv = skip => {
+      if (skip) delete alumno.respuestas[q.id];
+      if (alumno.i < n - 1) { alumno.i++; renderIV(); speak(Q[alumno.i].q(nom())); }
+      else { alumno.stage = "revisar"; renderIV(); }
+    };
+    $("#q-skip").onclick = () => adv(true);
+    $("#q-next").onclick = () => adv(false);
+    return;
+  }
+  if (st === "libre") {
+    iv.innerHTML = `
+      <div class="qhead"><span class="qcount">Modo libre</span><p class="qtext" id="l-text">${esc(libreQ())}</p></div>
+      <div class="answer">
+        <div class="mic-row"><span class="micslot" data-for="l-ans"></span><textarea id="l-ans" style="min-height:200px" aria-labelledby="l-text" placeholder="Por ejemplo: aprendizaje, participación, trabajo en equipo, tareas y estudio, actitud, comportamiento, evolución y qué le recomiendas.">${esc(alumno.libre)}</textarea></div>
+        <div class="partial" data-partial="l-ans"></div>
+        ${dictTip()}
+      </div>
+      <div class="row between"><button class="btn ghost" id="l-prev">Cambiar alumno</button><button class="btn" id="l-next">Terminar</button></div>`;
+    fillMicSlots(iv);
+    $("#l-ans").addEventListener("input", e => alumno.libre = e.target.value);
+    $("#l-prev").onclick = () => { alumno.stage = "alumno"; renderIV(); };
+    $("#l-next").onclick = () => { alumno.stage = "revisar"; renderIV(); };
+    return;
+  }
+  if (st === "revisar") {
+    const notas = notesList(), simple = alumno.modo === "simple" || WEB;
+    iv.innerHTML = `
+      <div class="row between"><h2>Repaso: ${esc(alumno.nombre)}</h2><span class="badge">${notas.length} ${notas.length === 1 ? "respuesta" : "respuestas"}</span></div>
+      ${notas.length ? `<div class="summary">${notas.map(x => `<div class="it"><b>${esc(x.t)}</b>${esc(x.a)}</div>`).join("")}</div>` : `<p class="note">No hay ninguna respuesta todavía. Vuelve atrás y cuéntame algo sobre ${esc(nom())}.</p>`}
+      ${simple ? "" : `<p class="hint">Antes de redactar, Claude puede revisar si falta algo importante y hacerte como mucho 2 preguntas.</p>`}
+      <p class="status" id="f-status" role="status"></p>
+      <div class="row between">
+        <button class="btn ghost" id="r-back">Volver a las preguntas</button>
+        <div class="row">
+          <button class="btn ${simple ? "" : "quiet"}" id="r-skipf" ${notas.length ? "" : "disabled"}>${simple ? "Redactar informe" : "Redactar ya"}</button>
+          ${simple ? "" : `<button class="btn" id="r-follow" ${notas.length && cap.sample ? "" : "disabled"}>Revisar con Claude</button>`}
+        </div>
+      </div>`;
+    $("#r-back").onclick = () => { if (alumno.modo === "libre") alumno.stage = "libre"; else { alumno.stage = "q"; alumno.i = 0; } renderIV(); };
+    $("#r-skipf").onclick = () => { alumno.informe = ""; go("informe"); };
+    if (!simple) $("#r-follow").onclick = askFollowups;
+    if (!cap.sample && !simple) setStatus($("#f-status"), cap.ready ? "Claude no está disponible en esta vista. Pulsa «Redactar ya» y usa «Copiar las instrucciones para otra IA»." : "Conectando con Claude…");
+    return;
+  }
+  if (st === "follow") {
+    iv.innerHTML = `
+      <div class="qhead"><span class="qcount">Claude pregunta</span><h2>Un par de detalles sobre ${esc(nom())}</h2></div>
+      ${alumno.follow.map((f, k) => `
+        <div class="answer">
+          <p class="qtext" id="fq-${k}">${esc(f.q)}</p>
+          <div class="mic-row"><span class="micslot" data-for="fa-${k}"></span><textarea id="fa-${k}" data-k="${k}" aria-labelledby="fq-${k}" style="min-height:80px" placeholder="Si no lo sabes o no quieres incluirlo, déjalo en blanco.">${esc(f.a)}</textarea></div>
+          <div class="partial" data-partial="fa-${k}"></div>
+        </div>`).join("")}
+      ${dictTip()}
+      <div class="row between"><button class="btn ghost" id="fo-back">Volver al repaso</button><button class="btn" id="fo-go">Redactar informe</button></div>`;
+    fillMicSlots(iv);
+    iv.querySelectorAll("textarea[data-k]").forEach(t => t.addEventListener("input", () => alumno.follow[+t.dataset.k].a = t.value));
+    $("#fo-back").onclick = () => { alumno.stage = "revisar"; renderIV(); };
+    $("#fo-go").onclick = () => { alumno.informe = ""; go("informe"); };
+    return;
+  }
+}
+function libreQ() { return `Cuéntame cómo va ${nom()} en tu materia: lo que hace bien, lo que debe mejorar y lo que le recomendarías.`; }
+function notesList() {
+  const out = [];
+  if (!alumno) return out;
+  if (alumno.modo === "libre" && alumno.libre.trim()) out.push({ t: "Lo que cuenta el docente", a: alumno.libre.trim() });
+  qs().forEach(q => { const a = (alumno.respuestas[q.id] || "").trim(); if (a) out.push({ t: q.tit, a }); });
+  return out;
+}
+async function askFollowups() {
+  const btn = $("#r-follow"), st = $("#f-status");
+  btn.disabled = true; st.className = "status thinking"; st.textContent = "Claude está revisando tus respuestas";
+  const prompt = `Eres un asistente que ayuda a un docente a preparar el informe de evaluación de un estudiante.
+Estas son las notas del docente (dictadas por voz, pueden tener errores de transcripción):
+${notesText()}
+
+Tarea: decide si falta información importante para escribir un informe equilibrado y útil. Por ejemplo: no hay ningún aspecto positivo; no hay ningún aspecto a mejorar ni propuesta; algo es tan vago que no se puede redactar ("va regular"); o falta saber cómo va con los contenidos de la materia.
+Si falta algo, formula como máximo 2 preguntas breves (máximo 25 palabras cada una), concretas, en castellano, tuteando al docente y usando el nombre "${nom()}". No preguntes por datos de salud, diagnósticos ni datos familiares.
+Si la información es suficiente, devuelve una lista vacía.
+Responde solo con JSON con esta forma: {"preguntas": ["...", "..."]}`;
+  try {
+    const r = await cap.sample.json(prompt, { modelTier: "quick" });
+    const qs = (Array.isArray(r?.preguntas) ? r.preguntas : []).filter(x => typeof x === "string" && x.trim()).slice(0, 2);
+    if (!qs.length) { st.className = "status"; st.textContent = "Hay información suficiente. Vamos al informe."; alumno.follow = []; alumno.informe = ""; setTimeout(() => go("informe"), 600); return; }
+    alumno.follow = qs.map(q => ({ q: q.trim(), a: "" })); alumno.stage = "follow"; renderIV();
+    speak(alumno.follow.map(f => f.q).join(" "));
+  } catch (e) {
+    st.className = "status err"; st.textContent = errMsg(e) + " Puedes pulsar «Redactar ya».";
+    btn.disabled = false;
+  }
+}
+
+/* ---------- Instrucciones para Claude ---------- */
+function notesText() {
+  const lines = notesList().map(x => `- ${x.t}: ${x.a}`);
+  (alumno?.follow || []).forEach(f => { if (f.a.trim()) lines.push(`- Aclaración (${f.q}): ${f.a.trim()}`); });
+  return lines.join("\n") || "- (sin notas)";
+}
+function buildPrompt() {
+  const s = S();
+  const gen = { alumno: "un alumno (usa el masculino)", alumna: "una alumna (usa el femenino)", neutro: "un estudiante (usa lenguaje neutro, evitando marcas de género)" }[alumno.genero];
+  const dest = {
+    familia: "Va dirigido a la familia: escribe en tercera persona, con un lenguaje claro y sin tecnicismos, y si hay propuestas incluye cómo pueden ayudar desde casa.",
+    alumno: "Va dirigido al propio estudiante: háblale de tú, en segunda persona, de forma directa y motivadora.",
+    boletin: "Es el comentario para el boletín de notas: tercera persona, frases claras, sin saludos ni despedidas.",
+    equipo: "Es para el equipo docente o el acta de evaluación: tercera persona, lenguaje técnico y preciso, sin saludos."
+  }[s.dest];
+  const ext = { breve: "unas 80 palabras", media: "unas 150 palabras", detallada: "unas 250 palabras" }[s.ext];
+  const tono = { cercano: "cercano, cálido y motivador", neutro: "neutro y profesional", formal: "formal" }[s.tono];
+  const formato = s.formato === "parrafo"
+    ? "Un único párrafo, sin títulos: empieza por los aspectos positivos, sigue con lo que debe mejorar y termina con propuestas concretas."
+    : "Tres apartados con estos títulos traducidos al idioma del informe, cada uno en su propia línea y sin símbolos: «Aspectos positivos», «Aspectos a mejorar» y «Propuestas de mejora». Los dos primeros en prosa breve; las propuestas, 2 o 3 frases concretas y realizables.";
+  const ctx = contextText();
+  const lim = parseInt(s.chars, 10);
+  return `Eres un docente con experiencia en evaluación formativa y competencial (LOMLOE). Redacta el informe de evaluación de ${gen}. Se llama ${nom()}.
+
+Datos:
+- Materia: ${s.materia.trim() || "no indicada"}
+- Curso: ${s.nivel.trim() || "no indicado"}
+- Momento: ${s.eval}
+${ctx ? `- Contexto del centro y del grupo (úsalo solo para ajustar el tono y las propuestas; no lo cites en el informe): ${ctx}\n` : ""}
+Notas del docente (dictadas por voz; corrige errores evidentes de transcripción):
+${notesText()}
+
+Cómo debe ser el informe:
+- Idioma: ${s.idioma}.
+- ${dest}
+- Tono ${tono}.
+- Extensión: ${ext}${lim ? `; y como máximo ${lim} caracteres contando los espacios, esto tiene prioridad` : ""}.
+- Formato: ${formato}
+- Usa solo la información de las notas. No inventes hechos, calificaciones, actividades ni ejemplos que el docente no haya mencionado. Si el docente da una calificación, puedes mencionarla.
+- Describe conductas y aprendizajes observables, no etiquetas sobre la personalidad. Nada de diagnósticos.
+- Empieza siempre por lo positivo. Lo que debe mejorar, en clave de crecimiento y con respeto.
+- Concordancia de género correcta en todo el texto.
+- Texto plano: sin markdown, sin asteriscos, sin viñetas con símbolos, sin firma${s.firma.trim() ? "" : " ni frase de cierre genérica"}.
+${s.firma.trim() ? `- Termina con esta frase exacta, en una línea aparte, sin traducirla ni cambiarla: ${s.firma.trim()}\n` : ""}
+Devuelve solo el texto del informe.`;
+}
+
+/* ---------- Informe ---------- */
+let ctl = null;
+function enterInforme() {
+  const has = alumno && notesList().length;
+  $("#inf-who").textContent = has ? alumno.nombre : "Sin alumno";
+  if (!has) {
+    $("#rep").value = ""; setStatus($("#r-status"), "Primero haz la entrevista de un alumno en el paso 3.");
+    toggleRepButtons(false); $("#r-prompt").value = ""; return;
+  }
+  toggleRepButtons(true);
+  $("#r-prompt").value = buildPrompt();
+  if (alumno.informe) { $("#rep").value = alumno.informe; updCount(); setStatus($("#r-status"), ""); return; }
+  if (WEB) { $("#rep").value = ""; updCount(); setStatus($("#r-status"), ""); }
+  else if (cap.sample) generate(buildPrompt(), "Claude está redactando el informe");
+  else { $("#rep").value = ""; updCount(); setStatus($("#r-status"), cap.ready ? "Claude no está disponible en esta vista. Abre «Copia las instrucciones para otra IA», pégalas en tu IA y pega aquí el resultado." : "Conectando con Claude… Pulsa «Volver a redactar» en unos segundos.", cap.ready); $("#fallback").open = cap.ready; }
+}
+function toggleRepButtons(on) { ["r-copy","r-dl","r-next","r-regen","r-trad","r-apply"].forEach(id => $("#" + id).disabled = !on); $$("[data-tweak]").forEach(b => b.disabled = !on); }
+async function generate(prompt, label) {
+  if (!cap.sample) { setStatus($("#r-status"), "Claude no está disponible en esta vista. Usa las instrucciones para otra IA.", true); $("#fallback").open = true; return; }
+  if (ctl) ctl.abort();
+  ctl = new AbortController();
+  const rep = $("#rep"), st = $("#r-status"), before = rep.value;
+  st.className = "status thinking"; st.textContent = label; $("#r-stop").hidden = false; toggleRepButtons(false);
+  let started = false;
+  try {
+    const { text, truncated } = await cap.sample(prompt, {
+      signal: ctl.signal, cache: false,
+      onText: ({ text }) => { if (!started) { started = true; st.textContent = "Escribiendo"; } rep.value = clean(text); updCount(); }
+    });
+    rep.value = clean(text); alumno.informe = rep.value; updCount();
+    setStatus(st, truncated ? "El texto ha quedado cortado. Pide «Más breve» o vuelve a redactar." : "Listo. Revísalo y edítalo si hace falta.", truncated);
+  } catch (e) {
+    if (e?.code === "cancelled") { rep.value = e.text ? clean(e.text) : before; setStatus(st, "Detenido."); }
+    else { rep.value = e?.text ? clean(e.text) : before; setStatus(st, errMsg(e), true); if (e?.code === "not_granted") $("#fallback").open = true; }
+    alumno.informe = rep.value; updCount();
+  } finally { $("#r-stop").hidden = true; toggleRepButtons(true); ctl = null; }
+}
+function clean(t) { return String(t || "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/^#+\s*/gm, "").replace(/^\s*[*•-]\s+/gm, "").trim(); }
+function updCount() {
+  const n = $("#rep").value.length, lim = parseInt(readField("s-chars"), 10), w = ($("#rep").value.trim().match(/\S+/g) || []).length;
+  const c = $("#r-count"); c.textContent = `${w} palabras · ${n} caracteres${lim ? ` de ${lim}` : ""}`; c.classList.toggle("over", !!lim && n > lim);
+}
+const TWEAKS = {
+  breve: "Hazlo más breve (aproximadamente un tercio más corto) sin perder la información clave.",
+  cercano: "Hazlo más cercano, cálido y motivador, sin perder la información.",
+  formal: "Hazlo más formal y profesional, sin perder la información.",
+  positivo: "Suaviza la forma de expresar los aspectos a mejorar, en clave de crecimiento, sin ocultarlos.",
+  concreto: "Hazlo más concreto: elimina frases genéricas o de relleno y mantén solo lo que se apoya en las notas."
+};
+function revise(instr) {
+  const s = S();
+  const p = `Este es un informe de evaluación de ${nom()} (${s.materia || "materia no indicada"}, ${s.nivel || "curso no indicado"}):
+
+"""
+${$("#rep").value}
+"""
+
+Notas originales del docente, por si las necesitas:
+${notesText()}
+
+Cambio pedido por el docente: ${instr}
+
+Normas: no inventes hechos que no estén en el informe o en las notas; mantén la concordancia de género; texto plano sin markdown${s.firma.trim() ? `; conserva al final, sin cambiarla, la frase: ${s.firma.trim()}` : ""}${parseInt(s.chars,10) ? `; máximo ${parseInt(s.chars,10)} caracteres con espacios` : ""}.
+Devuelve solo el informe revisado.`;
+  generate(p, "Claude está ajustando el texto");
+}
+
+/* ---------- Utilidades ---------- */
+function setStatus(el, t, err) { el.className = "status" + (err ? " err" : ""); el.textContent = t; }
+function errMsg(e) {
+  switch (e?.code) {
+    case "not_granted": return "No se ha dado permiso para usar Claude en esta página. Puedes copiar las instrucciones para otra IA.";
+    case "rate_limited": return "Has llegado al límite de uso de Claude por ahora. Espera unos minutos y vuelve a intentarlo.";
+    case "session_expired": return "La sesión ha caducado. Recarga la página e inicia sesión de nuevo.";
+    case "sampling_disabled": return "El uso de Claude está desactivado para tu cuenta en esta página.";
+    case "refused": return "Claude no ha querido redactar este texto. Revisa las notas y vuelve a intentarlo.";
+    case "prompt_too_large": return "Las notas son demasiado largas. Acórtalas un poco.";
+    case "invalid_json": case "empty_completion": return "La respuesta no ha llegado bien. Vuelve a intentarlo.";
+    default: return "Ha fallado la conexión con Claude. Vuelve a intentarlo.";
+  }
+}
+async function copyText(text, fallbackEl, statusEl, okMsg) {
+  try { await navigator.clipboard.writeText(text); setStatus(statusEl, okMsg); }
+  catch { if (fallbackEl) { fallbackEl.focus(); fallbackEl.select(); } setStatus(statusEl, "Texto seleccionado: pulsa Ctrl + C (o Cmd + C) para copiarlo."); }
+}
+async function download(filename, text, statusEl) {
+  if (WEB) {
+    try {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+      a.download = filename; document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      setStatus(statusEl, "Archivo descargado.");
+    } catch { setStatus(statusEl, "No se ha podido descargar. Usa «Copiar».", true); }
+    return;
+  }
+  if (!cap.dl) { setStatus(statusEl, "La descarga no está disponible aquí. Usa «Copiar».", true); return; }
+  try { await cap.dl.save({ filename, data: text }); setStatus(statusEl, "Archivo listo."); }
+  catch (e) { setStatus(statusEl, e?.code === "declined" ? "Descarga cancelada." : "No se ha podido descargar. Usa «Copiar».", e?.code !== "declined"); }
+}
+const slug = s => (s || "informe").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\(ejemplo\)/i, "ejemplo").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+
+/* ---------- Sesión ---------- */
+function renderSess() {
+  $("#sess").hidden = !sesion.length;
+  $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li"><span>${esc(x.nombre)}</span><button class="btn quiet" data-scopy="${k}">Copiar</button></div>`).join("");
+}
+$("#sess-list").addEventListener("click", e => { const b = e.target.closest("[data-scopy]"); if (b) copyText(sesion[+b.dataset.scopy].texto, null, $("#r-status"), `Informe de ${sesion[+b.dataset.scopy].nombre} copiado.`); });
+
+/* ---------- Eventos del informe ---------- */
+$("#rep").addEventListener("input", () => { if (alumno) alumno.informe = $("#rep").value; updCount(); });
+$("#r-stop").onclick = () => ctl?.abort();
+$("#r-regen").onclick = () => { $("#r-prompt").value = buildPrompt(); generate(buildPrompt(), "Claude está redactando de nuevo"); };
+$$("[data-tweak]").forEach(b => b.onclick = () => revise(TWEAKS[b.dataset.tweak]));
+$("#r-trad").onclick = () => revise(`Tradúcelo al ${$("#r-lang").value}, con naturalidad y sin cambiar el contenido. Los títulos de los apartados, si los hay, también traducidos.`);
+$("#r-apply").onclick = () => { const t = $("#r-instr").value.trim(); if (!t) { $("#r-instr").focus(); return; } revise(t); $("#r-instr").value = ""; };
+$("#r-copy").onclick = () => copyText($("#rep").value, $("#rep"), $("#r-status"), "Informe copiado. Pégalo en tu plataforma de notas.");
+$("#w-copy").onclick = () => { $("#r-prompt").value = buildPrompt(); copyText($("#r-prompt").value, null, $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA y luego pega aquí el informe."); };
+$("#r-pcopy").onclick =() => copyText($("#r-prompt").value, $("#r-prompt"), $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA.");
+$("#r-dl").onclick = () => download(`informe-${slug(alumno?.nombre)}.txt`, $("#rep").value, $("#r-status"));
+$("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => `${x.nombre}\n${"-".repeat(x.nombre.length)}\n${x.texto}`).join("\n\n\n"), $("#r-status"));
+$("#r-next").onclick = () => {
+  const txt = $("#rep").value.trim();
+  if (txt) { const i = sesion.findIndex(x => x.nombre === alumno.nombre); const it = { nombre: alumno.nombre, texto: txt }; if (i >= 0) sesion[i] = it; else sesion.push(it); }
+  renderSess();
+  const keep = { genero: alumno.genero, modo: alumno.modo };
+  alumno = Object.assign(newAlumno(), keep);
+  go("entrevista");
+  setTimeout(() => $("#a-nombre")?.focus(), 50);
+};
+
+/* ---------- Arranque ---------- */
+loadFields(SET_IDS, "iav-set");
+loadFields(CTX_IDS, "iav-ctx");
+SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
+SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => saveFields(SET_IDS, "iav-set")));
+bindCtx(); updateCode(); fillMicSlots();
+const firstView = readField("s-materia").trim() ? "entrevista" : "ajustes";
+go(firstView);
+
+(async () => {
+  if (WEB) {
+    cap.dict = browserSpeech(); cap.ready = true;
+    if (cap.dict) hookDictation();
+    $("#web-note").hidden = false;
+    $("#lead").textContent = "Responde a unas preguntas hablando o escribiendo y la IA redacta el informe. Tú lo revisas y decides la versión final.";
+    refreshAfterCaps(); return;
+  }
+  const get = n => window.claude.use(n).catch(() => null);
+  const [s, d, t, dl] = await Promise.all([get("sample"), get("dictation"), get("tts"), get("downloads")]);
+  Object.assign(cap, { sample: s, dict: d, tts: t, dl, ready: true });
+  if (cap.dict) hookDictation();
+  refreshAfterCaps();
+})();
+function refreshAfterCaps() {
+  fillMicSlots();
+  if (!$("#v-entrevista").hidden) renderIV();
+  if (!$("#v-informe").hidden && alumno && !alumno.informe && notesList().length) enterInforme();
+  $("#r-dl").hidden = !cap.dl && !WEB; $("#s-dlall").hidden = !cap.dl && !WEB;
+  $("#web-steps").hidden = !WEB; $("#tweaks").hidden = WEB; $("#fallback").hidden = WEB; $("#r-regen").hidden = WEB;
+  if (WEB) $("#rep").placeholder = "Pega aquí el informe que te ha dado tu IA. Después puedes editarlo, copiarlo o guardarlo.";
+}
+})();
+</script>
+</body>
+</html>
