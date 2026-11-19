@@ -158,6 +158,12 @@ body.is-listening .mic-label .on-t{display:inline}
 .summary .it b{display:block;font-family:var(--f-hand);font-weight:400;font-size:1.3rem;line-height:1.1;color:var(--pencil)}
 .list{display:flex;flex-direction:column;gap:8px}
 .list .li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--paper)}
+.gbox{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.gbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.gbar .glab{font-family:var(--f-hand);font-size:1.25rem;line-height:1;color:var(--pencil);margin-right:4px}
+.gbar .chip.add{border-style:dashed;color:var(--muted)}
+.gbar:empty{display:none}
+.g-cur{font-family:var(--f-hand);font-weight:500;font-size:1.25rem;color:var(--pencil);margin-left:6px}
 .badge{font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--pencil-soft);color:var(--pencil)}
 details{border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;background:var(--paper);box-shadow:var(--shadow)}
 details summary{cursor:pointer;font-weight:700}
@@ -199,7 +205,7 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 .ideas{box-shadow:none}
 @media (min-width:1024px){
   .wrap{max-width:1240px}
-  header.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px;row-gap:8px;align-items:start}
+  header.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:40px;row-gap:8px;align-items:start}
   header.top > :not(.start){grid-column:1}
   header.top .start{grid-column:2;grid-row:1 / span 3;margin-top:0}
   .layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:32px;align-items:start}
@@ -247,7 +253,7 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     <details class="guide" id="guide-web" hidden>
       <summary>Cómo se usa (5 pasos)</summary>
       <ol>
-        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
+        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda. Si tienes varios grupos, pulsa «+ Nuevo grupo» y cada uno recordará su materia, su curso y su contexto.</li>
         <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez el navegador te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>Pulsa «Copiar instrucciones»</b> y después el botón de tu IA (ChatGPT, Gemini, Claude o Copilot). Se abre en otra pestaña: pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía. La IA te devuelve el informe redactado.</li>
@@ -259,7 +265,7 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     <details class="guide" id="guide-claude">
       <summary>Cómo se usa (4 pasos)</summary>
       <ol>
-        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
+        <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda. Si tienes varios grupos, pulsa «+ Nuevo grupo» y cada uno recordará su materia, su curso y su contexto.</li>
         <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>La IA redacta el informe.</b> La primera vez te pedirá permiso para usar Claude, la IA de esta versión. Revisa el texto, ajústalo si quieres y cópialo a tu plataforma de notas.</li>
@@ -283,6 +289,14 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
   <!-- PASO 1 -->
   <section id="v-ajustes" class="view card" aria-labelledby="h-aj">
     <div class="row between"><h2 id="h-aj">Tu materia y el tipo de informe</h2><span class="hint">Se recuerda en este navegador</span></div>
+    <div class="gbox">
+      <div class="gbar" data-gbar="manage"></div>
+      <div class="row">
+        <label class="f" style="flex:1;min-width:180px">Nombre del grupo <small>Por ejemplo, «3º A» o «4º B Biología». Cada grupo recuerda su materia, su curso y su contexto.</small><input type="text" id="g-nombre" placeholder="3º A" autocomplete="off"></label>
+        <button class="btn quiet" id="g-del" type="button">Borrar este grupo</button>
+      </div>
+      <p class="status" id="g-status" role="status"></p>
+    </div>
     <div class="grid2">
       <label class="f">Materia, área o módulo<input type="text" id="s-materia" placeholder="Física y Química"></label>
       <label class="f">Curso y etapa<input type="text" id="s-nivel" list="niveles" placeholder="3º de ESO"></label>
@@ -331,7 +345,8 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     </div>
     <div id="ctx-centro"></div>
     <label class="f">Otros rasgos del centro<textarea id="c-centro-libre" style="min-height:70px" placeholder="Proyecto lingüístico, programas, metodologías…"></textarea></label>
-    <h3>Grupo</h3>
+    <h3>Grupo<span class="g-cur"></span></h3>
+    <div class="gbar" data-gbar="switch"></div>
     <div class="grid2">
       <label class="f">Número de alumnos<input type="number" id="c-num" min="1" max="60"></label>
       <label class="f">Alumnos repetidores<input type="number" id="c-rep" min="0" max="60"></label>
@@ -618,7 +633,7 @@ function bindCtx() {
     ctxSel[id] = ctxSel[id] === v ? undefined : v;
     if (!ctxSel[id]) delete ctxSel[id];
     $$(`[data-ctx="${id}"]`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === ctxSel[id]));
-    LS.set("iav-ctxsel", ctxSel); updateCode();
+    LS.set("iav-ctxsel", ctxSel); updateCode(); if (typeof snapGroup === "function") snapGroup();
   });
   CTX_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(CTX_IDS, "iav-ctx"); updateCode(); }));
   $("#c-copy").onclick = () => copyText($("#c-code").value, $("#c-code"), $("#c-status"), "Código copiado.");
@@ -628,13 +643,13 @@ function bindCtx() {
       ctxSel = d.sel || {}; LS.set("iav-ctxsel", ctxSel);
       CTX_IDS.forEach(id => writeField(id, d.f?.[id])); saveFields(CTX_IDS, "iav-ctx");
       renderCtxRows($("#ctx-centro"), CTX_CENTRO); renderCtxRows($("#ctx-grupo"), CTX_GRUPO);
-      setStatus($("#c-status"), "Contexto cargado.");
+      snapGroup(); setStatus($("#c-status"), "Contexto cargado.");
     } catch { setStatus($("#c-status"), "El código no es válido. Cópialo entero y vuelve a pegarlo.", true); }
   };
   $("#c-clear").onclick = () => {
     ctxSel = {}; LS.set("iav-ctxsel", ctxSel);
     CTX_IDS.forEach(id => writeField(id, id === "c-usar" ? true : "")); saveFields(CTX_IDS, "iav-ctx");
-    renderCtxRows($("#ctx-centro"), CTX_CENTRO); renderCtxRows($("#ctx-grupo"), CTX_GRUPO); updateCode();
+    renderCtxRows($("#ctx-centro"), CTX_CENTRO); renderCtxRows($("#ctx-grupo"), CTX_GRUPO); updateCode(); snapGroup();
     setStatus($("#c-status"), "Contexto borrado.");
   };
 }
@@ -739,6 +754,7 @@ function renderIV() {
   if (st === "alumno") {
     iv.innerHTML = `
       <div class="row between"><h2>¿De quién es el informe?</h2><button class="btn quiet" id="a-ej">Ver un ejemplo</button></div>
+      <div class="gbar" data-gbar="switch"></div>
       <div class="grid2">
         <label class="f">Nombre del alumno o alumna <small>Solo el nombre de pila, sin apellidos.</small><input type="text" id="a-nombre" value="${esc(alumno.nombre)}" autocomplete="off"></label>
         <div class="f"><span>Para la concordancia</span><div class="chips" role="radiogroup" aria-label="Género gramatical">
@@ -749,6 +765,7 @@ function renderIV() {
       ${!readField("s-materia").trim() ? `<p class="note">Aún no has indicado tu materia. <a href="#" data-go="ajustes">Complétala en el paso 1</a> para que el informe sea más preciso.</p>` : ""}
       <p class="status err" id="a-err" role="alert"></p>
       <div class="row end"><button class="btn" id="a-go">Empezar</button></div>`;
+    renderGrupos();
     $("#a-nombre").addEventListener("input", e => alumno.nombre = e.target.value);
     iv.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => { alumno.genero = b.dataset.gen; renderIV(); $("#a-nombre").focus(); });
     $("#a-cambia").onclick = e => { e.preventDefault(); document.querySelector("header.top").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => document.querySelector(".mcard[aria-checked='true'],.mp-libre[aria-checked='true']")?.focus({ preventScroll: true }), 300); };
@@ -866,9 +883,9 @@ function updateSide() {
     const stage = alumno.stage === "q" ? `Pregunta ${alumno.i + 1} de ${n}` : alumno.stage === "libre" ? "Contándolo todo" : alumno.stage === "follow" ? "Preguntas de la IA" : alumno.informe ? "Informe redactado" : "Repaso";
     parts.push(`<div class="si-block"><span class="si-lab">Ahora</span><b>${esc(alumno.nombre)}</b><span class="hint">${MODO_TXT[alumno.modo]} · ${stage}</span>${alumno.modo !== "libre" ? `<span class="dots" aria-hidden="true">${Q.map((q, k) => `<i class="${alumno.respuestas[q.id]?.trim() ? "done" : ""}${alumno.stage === "q" && k === alumno.i ? " now" : ""}"></i>`).join("")}</span>` : ""}</div>`);
   }
-  if (sesion.length) parts.push(`<div class="si-block"><span class="si-lab">Esta sesión</span><b>${sesion.length} ${sesion.length === 1 ? "informe" : "informes"}</b><span class="hint">${sesion.map(x => esc(x.nombre)).join(", ")}</span></div>`);
+  if (sesion.length) parts.push(`<div class="si-block"><span class="si-lab">Esta sesión</span><b>${sesion.length} ${sesion.length === 1 ? "informe" : "informes"}</b><span class="hint">${sesion.map(x => esc(x.nombre) + (multiG() ? ` (${esc(x.grupo)})` : "")).join(", ")}</span></div>`);
   const m = readField("s-materia").trim(), c = readField("s-nivel").trim();
-  if (m || c) parts.push(`<div class="si-block"><span class="si-lab">Materia</span><span>${esc([m, c].filter(Boolean).join(" · "))}</span><span class="hint">${esc(readField("s-eval"))}</span></div>`);
+  if (m || c || grupos.list.length > 1) parts.push(`<div class="si-block"><span class="si-lab">Grupo</span><b>${esc(gName(curG()))}</b><span>${esc([m, c].filter(Boolean).join(" · "))}</span><span class="hint">${esc(readField("s-eval"))}</span></div>`);
   el.innerHTML = parts.join("");
 }
 function libreQ() { return `Cuéntame cómo va ${nom()} en tu materia: lo que hace bien, lo que debe mejorar y lo que le recomendarías.`; }
@@ -1068,7 +1085,7 @@ const slug = s => (s || "informe").normalize("NFD").replace(/[̀-ͯ]/g, "").repl
 /* ---------- Sesión ---------- */
 function renderSess() {
   $("#sess").hidden = !sesion.length; updateSide();
-  $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li"><span>${esc(x.nombre)}</span><button class="btn quiet" data-scopy="${k}">Copiar</button></div>`).join("");
+  $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li"><span>${esc(x.nombre)}${multiG() ? ` <small class="hint">· ${esc(x.grupo)}</small>` : ""}</span><button class="btn quiet" data-scopy="${k}">Copiar</button></div>`).join("");
 }
 $("#sess-list").addEventListener("click", e => { const b = e.target.closest("[data-scopy]"); if (b) copyText(sesion[+b.dataset.scopy].texto, null, $("#r-status"), `Informe de ${sesion[+b.dataset.scopy].nombre} copiado.`); });
 
@@ -1083,16 +1100,91 @@ $("#r-copy").onclick = () => copyText($("#rep").value, $("#rep"), $("#r-status")
 $("#w-copy").onclick = () => { $("#r-prompt").value = buildPrompt(); copyText($("#r-prompt").value, null, $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA y luego pega aquí el informe."); };
 $("#r-pcopy").onclick =() => copyText($("#r-prompt").value, $("#r-prompt"), $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA.");
 $("#r-dl").onclick = () => download(`informe-${slug(alumno?.nombre)}.txt`, $("#rep").value, $("#r-status"));
-$("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => `${x.nombre}\n${"-".repeat(x.nombre.length)}\n${x.texto}`).join("\n\n\n"), $("#r-status"));
+$("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => { const t = multiG() ? `${x.nombre} (${x.grupo})` : x.nombre; return `${t}\n${"-".repeat(t.length)}\n${x.texto}`; }).join("\n\n\n"), $("#r-status"));
 $("#r-next").onclick = () => {
   const txt = $("#rep").value.trim();
-  if (txt) { const i = sesion.findIndex(x => x.nombre === alumno.nombre); const it = { nombre: alumno.nombre, texto: txt }; if (i >= 0) sesion[i] = it; else sesion.push(it); }
+  if (txt) { const gr = gName(curG()); const i = sesion.findIndex(x => x.nombre === alumno.nombre && x.grupo === gr); const it = { nombre: alumno.nombre, grupo: gr, texto: txt }; if (i >= 0) sesion[i] = it; else sesion.push(it); }
   renderSess();
   const keep = { genero: alumno.genero }; $("#mp-note").textContent = "";
   alumno = Object.assign(newAlumno(), keep);
   go("entrevista");
   setTimeout(() => $("#a-nombre")?.focus(), 50);
 };
+
+/* ---------- Grupos ---------- */
+// Cada grupo guarda su materia, su curso y el contexto del grupo. El contexto del centro es común.
+const GRP_FIELDS = ["s-materia", "s-nivel", "c-num", "c-rep", "c-grupo-libre"];
+const GRP_SEL = CTX_GRUPO.map(r => r.id);
+const newGid = () => "g" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+let grupos = LS.get("iav-grupos", null);
+if (!grupos || !Array.isArray(grupos.list) || !grupos.list.length) {
+  const id = newGid();
+  grupos = { cur: id, list: [{ id, nombre: "", f: {}, sel: {} }] };
+}
+const curG = () => grupos.list.find(g => g.id === grupos.cur) || grupos.list[0];
+const gName = g => (g?.nombre || "").trim() || (g === curG() ? readField("s-nivel") : g?.f?.["s-nivel"] || "").trim() || `Grupo ${grupos.list.indexOf(g) + 1}`;
+const multiG = () => grupos.list.length > 1;
+function snapGroup() {
+  const g = curG(); g.f = {}; g.sel = {};
+  GRP_FIELDS.forEach(id => g.f[id] = readField(id));
+  GRP_SEL.forEach(k => { if (ctxSel[k]) g.sel[k] = ctxSel[k]; });
+  LS.set("iav-grupos", grupos);
+}
+function applyGroup(id) {
+  snapGroup(); grupos.cur = id; const g = curG();
+  GRP_FIELDS.forEach(f => writeField(f, g.f?.[f] ?? ""));
+  GRP_SEL.forEach(k => { delete ctxSel[k]; if (g.sel?.[k]) ctxSel[k] = g.sel[k]; });
+  LS.set("iav-ctxsel", ctxSel); saveFields(SET_IDS, "iav-set"); saveFields(CTX_IDS, "iav-ctx"); LS.set("iav-grupos", grupos);
+  renderCtxRows($("#ctx-grupo"), CTX_GRUPO); updateCode(); afterGroupChange();
+}
+function afterGroupChange() {
+  renderGrupos(); updateSide();
+  if (!$("#v-entrevista").hidden && alumno && alumno.stage === "alumno") { const n = alumno.nombre; renderIV(); $("#a-nombre").value = n; }
+}
+function renderGrupos() {
+  const cur = curG();
+  const chips = grupos.list.map(g => `<button type="button" class="chip" data-grp="${g.id}" aria-pressed="${g.id === cur.id}">${esc(gName(g))}</button>`).join("");
+  $$("[data-gbar]").forEach(el => {
+    const manage = el.dataset.gbar === "manage";
+    if (!manage && !multiG()) { el.innerHTML = ""; return; }
+    el.innerHTML = `<span class="glab">${manage ? "Tus grupos" : "Grupo"}</span>${chips}${manage ? `<button type="button" class="chip add" data-grp-add>+ Nuevo grupo</button>` : ""}`;
+  });
+  const gn = $("#g-nombre"); if (gn && document.activeElement !== gn) gn.value = cur.nombre || "";
+  $("#g-del").hidden = !multiG(); $("#g-del").textContent = "Borrar este grupo"; delete $("#g-del").dataset.armed;
+  $$(".g-cur").forEach(e => e.textContent = multiG() ? gName(cur) : "");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-grp]");
+  if (b && b.dataset.grp !== grupos.cur) {
+    applyGroup(b.dataset.grp); setStatus($("#g-status"), "");
+    return;
+  }
+  if (e.target.closest("[data-grp-add]")) {
+    snapGroup();
+    const prev = curG(), id = newGid();
+    grupos.list.push({ id, nombre: "", f: { "s-materia": prev.f["s-materia"] || "", "s-nivel": prev.f["s-nivel"] || "" }, sel: {} });
+    applyGroup(id);
+    if ($("#v-ajustes").hidden) go("ajustes");
+    setStatus($("#g-status"), "Grupo nuevo creado con tu misma materia y curso. Ponle nombre y cambia lo que haga falta.");
+    setTimeout(() => $("#g-nombre").focus(), 60);
+  }
+});
+$("#g-nombre").addEventListener("input", e => { curG().nombre = e.target.value; LS.set("iav-grupos", grupos); renderGrupos(); updateSide(); });
+$("#g-del").onclick = () => {
+  const b = $("#g-del");
+  if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = `¿Seguro? Pulsa otra vez para borrar «${gName(curG())}»`; return; }
+  const gone = curG(), k = grupos.list.indexOf(gone);
+  grupos.list.splice(k, 1);
+  grupos.cur = grupos.list[Math.max(0, k - 1)].id;
+  const g = curG();
+  GRP_FIELDS.forEach(f => writeField(f, g.f?.[f] ?? ""));
+  GRP_SEL.forEach(x => { delete ctxSel[x]; if (g.sel?.[x]) ctxSel[x] = g.sel[x]; });
+  LS.set("iav-ctxsel", ctxSel); saveFields(SET_IDS, "iav-set"); saveFields(CTX_IDS, "iav-ctx"); LS.set("iav-grupos", grupos);
+  renderCtxRows($("#ctx-grupo"), CTX_GRUPO); updateCode(); afterGroupChange();
+  setStatus($("#g-status"), `Grupo «${gName(gone)}» borrado.`);
+};
+// Mantener al día la ficha del grupo actual
+GRP_FIELDS.forEach(id => document.getElementById(id).addEventListener("input", () => { snapGroup(); if (id === "s-nivel") renderGrupos(); }));
 
 /* ---------- Versión (cabecera) ---------- */
 function paintPicker() {
@@ -1112,7 +1204,7 @@ loadFields(SET_IDS, "iav-set");
 loadFields(CTX_IDS, "iav-ctx");
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => { saveFields(SET_IDS, "iav-set"); updateSide(); }));
-bindCtx(); updateCode(); fillMicSlots(); paintPicker();
+bindCtx(); updateCode(); fillMicSlots(); paintPicker(); snapGroup(); renderGrupos();
 // Guía abierta hasta que el docente la cierre (se recuerda en este navegador)
 $$(".guide").forEach(g => { g.open = !LS.get("iav-guide-closed", false); g.addEventListener("toggle", () => LS.set("iav-guide-closed", !g.open)); });
 const firstView = readField("s-materia").trim() ? "entrevista" : "ajustes";
