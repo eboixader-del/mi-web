@@ -163,6 +163,24 @@ details{border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;ba
 details summary{cursor:pointer;font-weight:700}
 details[open] summary{margin-bottom:10px}
 .card details{box-shadow:none}
+.start{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.modepick{display:flex;flex-direction:column;gap:8px}
+.mp-lab{font-family:var(--f-hand);font-size:1.35rem;line-height:1;color:var(--pencil)}
+.mp-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mcard{font:inherit;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto 1fr;column-gap:10px;row-gap:2px;align-items:center;
+  padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);border-top:4px solid var(--mc);background:var(--paper);color:var(--ink);transition:transform .15s,box-shadow .15s}
+.mcard:hover{transform:translateY(-1px)}
+.mcard .mc-n{grid-row:1 / span 2;font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;color:var(--mc);min-width:1.1ch;text-align:center}
+.mcard .mc-t{font-family:var(--f-display);font-weight:700}
+.mcard .mc-t::after{content:" preguntas";font-family:var(--f-body,inherit);font-weight:400;color:var(--muted);font-size:.85rem}
+.mcard .mc-d{grid-column:1 / -1;font-size:.84rem;color:var(--muted);margin-top:4px}
+.mcard[aria-checked="true"]{border-color:var(--mc);box-shadow:0 0 0 2px var(--mc) inset;background:var(--accent-soft)}
+.mcard[aria-checked="true"] .mc-t::before{content:"✓ ";color:var(--mc)}
+.mp-libre{font:inherit;font-size:.86rem;align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.mp-libre[aria-checked="true"]{color:var(--ink);font-weight:700;text-decoration-color:var(--accent)}
+.mp-libre[aria-checked="true"]::before{content:"✓ "}
+#mp-note:empty{display:none}
+@media (max-width:420px){.mp-cards{grid-template-columns:1fr}}
 .guide{background:var(--accent-soft);border-color:transparent;box-shadow:none;margin-top:6px}
 .guide summary{font-family:var(--f-display)}
 .guide ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:9px;max-width:66ch}
@@ -182,8 +200,8 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 @media (min-width:1024px){
   .wrap{max-width:1240px}
   header.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:40px;row-gap:8px;align-items:start}
-  header.top > :not(.guide){grid-column:1}
-  header.top .guide{grid-column:2;grid-row:1 / span 3;margin-top:0}
+  header.top > :not(.start){grid-column:1}
+  header.top .start{grid-column:2;grid-row:1 / span 3;margin-top:0}
   .layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:32px;align-items:start}
   .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
   nav.steps{grid-template-columns:1fr;position:static;padding-top:0;border-bottom:0;gap:8px;background:transparent}
@@ -209,7 +227,6 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
 .thinking::after{content:"";display:inline-block;width:1em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
 </style>
-
 </head>
 <body>
 <div class="wrap">
@@ -217,11 +234,21 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     <span class="eyebrow">Evaluación del alumnado</span>
     <h1>Informes <mark>a viva voz</mark></h1>
     <p class="lead" id="lead">Responde a unas preguntas hablando o escribiendo y Claude redacta el informe. Tú lo revisas y decides la versión final.</p>
+    <div class="start">
+    <div class="modepick" role="radiogroup" aria-labelledby="mp-lab">
+      <span class="mp-lab" id="mp-lab">Elige la versión</span>
+      <div class="mp-cards">
+        <button type="button" class="mcard" role="radio" data-pick="simple" style="--mc:var(--c-green)"><span class="mc-n">3</span><span class="mc-t">Simplificada</span><span class="mc-d">Lo que hace bien, lo que debe mejorar y qué le recomiendas. La más rápida.</span></button>
+        <button type="button" class="mcard" role="radio" data-pick="guiada" style="--mc:var(--c-blue)"><span class="mc-n">7</span><span class="mc-t">Extensa</span><span class="mc-d">Aprendizaje, participación, equipo, responsabilidad, actitud, convivencia y evolución.</span></button>
+      </div>
+      <button type="button" class="mp-libre" role="radio" data-pick="libre">O cuéntalo todo de una vez, sin preguntas (modo libre)</button>
+      <p class="hint" id="mp-note" aria-live="polite"></p>
+    </div>
     <details class="guide" id="guide-web" hidden>
       <summary>Cómo se usa (5 pasos)</summary>
       <ol>
         <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
-        <li><b>Escribe el nombre del alumno</b> en «Entrevista» y elige la versión: simplificada (3 preguntas) o extensa (7).</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez el navegador te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>Pulsa «Copiar instrucciones»</b> y después el botón de tu IA (ChatGPT, Gemini, Claude o Copilot). Se abre en otra pestaña: pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía. La IA te devuelve el informe redactado.</li>
         <li><b>Copia ese informe, vuelve a esta pestaña y pégalo</b> en el recuadro grande. Revísalo, cópialo a tu plataforma de notas y pasa al siguiente alumno.</li>
@@ -233,11 +260,12 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
       <summary>Cómo se usa (4 pasos)</summary>
       <ol>
         <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda.</li>
-        <li><b>Escribe el nombre del alumno</b> en «Entrevista» y elige la versión: simplificada (3 preguntas) o extensa (7).</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>Claude redacta el informe.</b> La primera vez te pedirá permiso para usar Claude. Revisa el texto, ajústalo si quieres y cópialo a tu plataforma de notas.</li>
       </ol>
     </details>
+    </div>
   </header>
 
   <div class="layout">
@@ -717,15 +745,13 @@ function renderIV() {
           ${[["alumno","Alumno"],["alumna","Alumna"],["neutro","Lenguaje neutro"]].map(([v,l]) => `<button type="button" class="chip" role="radio" data-gen="${v}" aria-pressed="${alumno.genero===v}" aria-checked="${alumno.genero===v}">${l}</button>`).join("")}
         </div></div>
       </div>
-      <div class="f"><span>¿Cómo prefieres contarlo?</span><div class="chips" role="radiogroup" aria-label="Modo de entrevista">
-        ${[["simple","Simplificada: 3 preguntas"],["guiada","Extensa: 7 preguntas"],["libre","Libre: lo cuento todo de una vez"]].map(([v,l]) => `<button type="button" class="chip" role="radio" data-modo="${v}" aria-pressed="${alumno.modo===v}" aria-checked="${alumno.modo===v}">${l}</button>`).join("")}
-      </div><span class="hint">${{simple:"Lo que hace bien, lo que debe mejorar y qué le recomiendas. La más rápida.", guiada:"Aprendizaje, participación, equipo, responsabilidad, actitud, convivencia y evolución." + (WEB ? "" : " Al final, Claude puede hacerte 2 preguntas más."), libre:"Lo dictas todo seguido." + (WEB ? "" : " Al final, Claude puede hacerte 2 preguntas más.")}[alumno.modo]}</span></div>
+      <p class="note mp-now">Versión: <b>${MODO_TXT[alumno.modo]}</b>${alumno.modo === "libre" ? "" : ` (${qs().length} preguntas)`}. <a href="#" id="a-cambia">Cambiar</a></p>
       ${!readField("s-materia").trim() ? `<p class="note">Aún no has indicado tu materia. <a href="#" data-go="ajustes">Complétala en el paso 1</a> para que el informe sea más preciso.</p>` : ""}
       <p class="status err" id="a-err" role="alert"></p>
       <div class="row end"><button class="btn" id="a-go">Empezar</button></div>`;
     $("#a-nombre").addEventListener("input", e => alumno.nombre = e.target.value);
     iv.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => { alumno.genero = b.dataset.gen; renderIV(); $("#a-nombre").focus(); });
-    iv.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => { alumno.modo = b.dataset.modo; LS.set("iav-modo", alumno.modo); renderIV(); });
+    $("#a-cambia").onclick = e => { e.preventDefault(); document.querySelector("header.top").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => document.querySelector(".mcard[aria-checked='true'],.mp-libre[aria-checked='true']")?.focus({ preventScroll: true }), 300); };
     $("#a-ej").onclick = () => {
       alumno = newAlumno(); Object.assign(alumno, { nombre: EJEMPLO.nombre, genero: EJEMPLO.genero, modo: "guiada", respuestas: { ...EJEMPLO.respuestas }, stage: "revisar" });
       renderIV();
@@ -882,8 +908,19 @@ function notesText() {
   (alumno?.follow || []).forEach(f => { if (f.a.trim()) lines.push(`- Aclaración (${f.q}): ${f.a.trim()}`); });
   return lines.join("\n") || "- (sin notas)";
 }
+// Para que cada informe sea distinto: un enfoque de arranque al azar y los inicios ya usados en la sesión
+const ARRANQUES = [
+  "Abre con el logro o la fortaleza más concreta y llamativa que aparece en las notas.",
+  "Abre describiendo cómo ha evolucionado durante este periodo, si las notas lo permiten; si no, con su punto fuerte más concreto.",
+  "Abre con una conducta observable en clase que lo retrate bien (cómo trabaja, cómo participa o cómo se relaciona), tomada de las notas.",
+  "Abre con lo que mejor se le da en esta materia, con un detalle concreto de las notas.",
+  "Abre con su actitud o su forma de afrontar las tareas, apoyándote en algo concreto de las notas."
+];
+function inicio(t) { return String(t || "").split(/(?<=[.!?])\s/)[0].slice(0, 160); }
 function buildPrompt() {
   const s = S();
+  const otros = sesion.filter(x => x.nombre !== alumno.nombre).slice(-6).map(x => `- «${inicio(x.texto)}»`);
+  const arranque = ARRANQUES[Math.floor(Math.random() * ARRANQUES.length)];
   const gen = { alumno: "un alumno (usa el masculino)", alumna: "una alumna (usa el femenino)", neutro: "un estudiante (usa lenguaje neutro, evitando marcas de género)" }[alumno.genero];
   const dest = {
     familia: "Va dirigido a la familia: escribe en tercera persona, con un lenguaje claro y sin tecnicismos, y si hay propuestas incluye cómo pueden ayudar desde casa.",
@@ -918,7 +955,10 @@ Cómo debe ser el informe:
 - Describe conductas y aprendizajes observables, no etiquetas sobre la personalidad. Nada de diagnósticos.
 - Empieza siempre por lo positivo. Lo que debe mejorar, en clave de crecimiento y con respeto.
 - Concordancia de género correcta en todo el texto.
-- Texto plano: sin markdown, sin asteriscos, sin viñetas con símbolos, sin firma${s.firma.trim() ? "" : " ni frase de cierre genérica"}.
+- Este informe tiene que ser único y personal: que solo pueda ser de ${nom()}. Constrúyelo a partir de los detalles concretos de sus notas y evita frases comodín que valdrían para cualquier estudiante («es un alumno trabajador», «debe seguir así», «tiene que esforzarse más»). Si una nota es una frase corta y genérica, reformúlala con tus palabras y conéctala con el resto de la información.
+- ${arranque}
+- Varía la estructura y el vocabulario: no uses una plantilla fija de frases.
+${otros.length ? `- En esta sesión ya has escrito informes de otros estudiantes que empiezan así. No repitas esos arranques, ni su estructura, ni sus expresiones:\n${otros.join("\n")}\n` : ""}- Texto plano: sin markdown, sin asteriscos, sin viñetas con símbolos, sin firma${s.firma.trim() ? "" : " ni frase de cierre genérica"}.
 ${s.firma.trim() ? `- Termina con esta frase exacta, en una línea aparte, sin traducirla ni cambiarla: ${s.firma.trim()}\n` : ""}
 Devuelve solo el texto del informe.`;
 }
@@ -1048,18 +1088,31 @@ $("#r-next").onclick = () => {
   const txt = $("#rep").value.trim();
   if (txt) { const i = sesion.findIndex(x => x.nombre === alumno.nombre); const it = { nombre: alumno.nombre, texto: txt }; if (i >= 0) sesion[i] = it; else sesion.push(it); }
   renderSess();
-  const keep = { genero: alumno.genero, modo: alumno.modo };
+  const keep = { genero: alumno.genero }; $("#mp-note").textContent = "";
   alumno = Object.assign(newAlumno(), keep);
   go("entrevista");
   setTimeout(() => $("#a-nombre")?.focus(), 50);
 };
+
+/* ---------- Versión (cabecera) ---------- */
+function paintPicker() {
+  const m = LS.get("iav-modo", "simple");
+  $$("[data-pick]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.pick === m)));
+}
+$$("[data-pick]").forEach(b => b.onclick = () => {
+  const m = b.dataset.pick; LS.set("iav-modo", m); paintPicker();
+  const note = $("#mp-note");
+  if (!alumno || alumno.stage === "alumno") { if (alumno) alumno.modo = m; note.textContent = ""; if (alumno && !$("#v-entrevista").hidden) renderIV(); }
+  else note.textContent = alumno.modo === m ? "" : `Estás a mitad del informe de ${alumno.nombre}: el cambio se aplicará al siguiente alumno.`;
+  updateSide();
+});
 
 /* ---------- Arranque ---------- */
 loadFields(SET_IDS, "iav-set");
 loadFields(CTX_IDS, "iav-ctx");
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => { saveFields(SET_IDS, "iav-set"); updateSide(); }));
-bindCtx(); updateCode(); fillMicSlots();
+bindCtx(); updateCode(); fillMicSlots(); paintPicker();
 // Guía abierta hasta que el docente la cierre (se recuerda en este navegador)
 $$(".guide").forEach(g => { g.open = !LS.get("iav-guide-closed", false); g.addEventListener("toggle", () => LS.set("iav-guide-closed", !g.open)); });
 const firstView = readField("s-materia").trim() ? "entrevista" : "ajustes";
