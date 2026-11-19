@@ -53,19 +53,27 @@ header.top{display:flex;flex-direction:column;gap:8px;padding-left:22px;border-l
 .eyebrow{font-family:var(--f-hand);font-size:1.45rem;line-height:1;color:var(--pencil);transform:rotate(-1.5deg);transform-origin:left;display:inline-block}
 
 /* pestañas de separador */
-nav.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;
+nav.steps{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;overflow-x:auto;scrollbar-width:none;
   background:var(--bg);padding-top:8px;border-bottom:2px solid var(--line)}
+nav.steps::-webkit-scrollbar{display:none}
 nav.steps button{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:0;padding:8px 12px 7px;border-radius:10px 10px 0 0;
   border:1px solid var(--line);border-bottom:0;background:var(--paper);min-width:0;margin-bottom:-2px;position:relative;opacity:.82;
   border-top:4px solid var(--tab,var(--c-slate))}
-nav.steps button:nth-child(1){--tab:var(--c-blue)} nav.steps button:nth-child(2){--tab:var(--c-amber)}
-nav.steps button:nth-child(3){--tab:var(--c-rose)} nav.steps button:nth-child(4){--tab:var(--c-green)}
+nav.steps button{flex:1 0 auto}
+nav.steps [data-go="guia"]{--tab:var(--c-slate);flex:0 0 auto} nav.steps [data-go="ajustes"]{--tab:var(--c-blue)} nav.steps [data-go="contexto"]{--tab:var(--c-amber)}
+nav.steps [data-go="entrevista"]{--tab:var(--c-rose)} nav.steps [data-go="informe"]{--tab:var(--c-green)} nav.steps [data-go="guardados"]{--tab:var(--c-violet)}
+nav.steps .cnt{display:inline-block;min-width:1.5em;text-align:center;font-size:.78rem;border-radius:999px;padding:1px 6px;background:var(--pencil-soft);color:var(--pencil);margin-left:2px}
+.guia-grid{display:flex;flex-direction:column;gap:20px}
+.pick-card{padding-block:18px}
+.sitem{align-items:flex-start!important;flex-wrap:wrap}
+.sitem .prev{margin-top:3px;max-width:70ch;overflow-wrap:anywhere}
+.sitem .row{flex-wrap:wrap;gap:6px}
 nav.steps button .n{font-family:var(--f-hand);font-size:1.05rem;line-height:1.05;color:var(--muted)}
 nav.steps button .t{font-weight:700;font-size:.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 nav.steps button:hover{opacity:1}
 nav.steps button[aria-current="step"]{opacity:1;padding-top:12px;border-bottom:2px solid var(--paper);box-shadow:var(--shadow)}
 nav.steps button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-@media (max-width:520px){nav.steps button{padding-inline:7px} nav.steps button .t{font-size:.8rem;white-space:normal;line-height:1.15} nav.steps button .n{font-size:.9rem}}
+@media (max-width:520px){nav.steps{margin-inline:-16px;padding-inline:16px;scroll-padding-inline:16px} nav.steps button{padding-inline:10px} nav.steps button .t{font-size:.86rem} nav.steps button .n{font-size:.9rem}}
 
 /* fichas */
 .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 22px 34px;display:flex;flex-direction:column;gap:16px;min-width:0;
@@ -169,16 +177,15 @@ details{border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;ba
 details summary{cursor:pointer;font-weight:700}
 details[open] summary{margin-bottom:10px}
 .card details{box-shadow:none}
-.start{display:flex;flex-direction:column;gap:12px;margin-top:6px}
 .modepick{display:flex;flex-direction:column;gap:8px}
 .mp-lab{font-family:var(--f-hand);font-size:1.35rem;line-height:1;color:var(--pencil)}
 .mp-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mcard{font:inherit;text-align:left;cursor:pointer;display:grid;grid-template-columns:auto 1fr;column-gap:10px;row-gap:2px;align-items:center;
   padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);border-top:4px solid var(--mc);background:var(--paper);color:var(--ink);transition:transform .15s,box-shadow .15s}
 .mcard:hover{transform:translateY(-1px)}
-.mcard .mc-n{grid-row:1 / span 2;font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;color:var(--mc);min-width:1.1ch;text-align:center}
+.mcard .mc-n{display:flex;align-items:baseline;gap:5px;font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;color:var(--mc)}
 .mcard .mc-t{font-family:var(--f-display);font-weight:700}
-.mcard .mc-t::after{content:" preguntas";font-family:var(--f-body,inherit);font-weight:400;color:var(--muted);font-size:.85rem}
+.mcard .mc-n::after{content:"preguntas";font-family:var(--f-hand);font-weight:500;font-size:1.05rem;color:var(--muted)}
 .mcard .mc-d{grid-column:1 / -1;font-size:.84rem;color:var(--muted);margin-top:4px}
 .mcard[aria-checked="true"]{border-color:var(--mc);box-shadow:0 0 0 2px var(--mc) inset;background:var(--accent-soft)}
 .mcard[aria-checked="true"] .mc-t::before{content:"✓ ";color:var(--mc)}
@@ -186,8 +193,8 @@ details[open] summary{margin-bottom:10px}
 .mp-libre[aria-checked="true"]{color:var(--ink);font-weight:700;text-decoration-color:var(--accent)}
 .mp-libre[aria-checked="true"]::before{content:"✓ "}
 #mp-note:empty{display:none}
-@media (max-width:420px){.mp-cards{grid-template-columns:1fr}}
-.guide{background:var(--accent-soft);border-color:transparent;box-shadow:none;margin-top:6px}
+@media (max-width:420px){.mcard .mc-d{display:none} .mcard{padding:8px 10px;grid-template-columns:1fr}}
+.guide{background:var(--accent-soft)}
 .guide summary{font-family:var(--f-display)}
 .guide ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:9px;max-width:66ch}
 .guide ol li::marker{font-family:var(--f-hand);font-size:1.3em;color:var(--accent)}
@@ -205,17 +212,12 @@ kbd{font:inherit;font-size:.85em;border:1px solid var(--line);border-bottom-widt
 .ideas{box-shadow:none}
 @media (min-width:1024px){
   .wrap{max-width:1240px}
-  header.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:40px;row-gap:8px;align-items:start}
-  header.top > :not(.start){grid-column:1}
-  header.top .start{grid-column:2;grid-row:1 / span 3;margin-top:0}
-  .layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:32px;align-items:start}
-  .side{display:flex;flex-direction:column;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
-  nav.steps{grid-template-columns:1fr;position:static;padding-top:0;border-bottom:0;gap:8px;background:transparent}
-  nav.steps button{border-radius:10px;border:1px solid var(--line);border-left:6px solid var(--tab);margin:0;padding:10px 14px;transition:transform .15s}
-  nav.steps button[aria-current="step"]{padding-top:10px;border-bottom:1px solid var(--line);transform:translateX(8px)}
-  nav.steps button .t{font-size:1rem}
-  .side-info{display:flex;flex-direction:column;gap:12px}
-  .side-info:empty{display:none}
+  header.top{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:40px;row-gap:6px;align-items:end}
+  header.top .eyebrow{grid-column:1 / -1}
+  header.top .lead{padding-bottom:6px}
+  .guia-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+  .mp-cards{grid-template-columns:repeat(2,minmax(0,340px))}
+  nav.steps button{padding-inline:18px} nav.steps button .t{font-size:1rem}
   .si-block{display:flex;flex-direction:column;gap:4px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;min-width:0;overflow-wrap:anywhere}
   .si-lab{font-family:var(--f-hand);font-size:1.25rem;line-height:1;color:var(--pencil)}
   .card{padding:28px 30px 28px 44px;background-image:linear-gradient(to right,transparent 24px,var(--margin) 24px,var(--margin) 25px,transparent 25px)}
@@ -240,51 +242,58 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     <span class="eyebrow">Evaluación del alumnado</span>
     <h1>Informes <mark>a viva voz</mark></h1>
     <p class="lead" id="lead">Responde a unas preguntas hablando o escribiendo y la IA redacta el informe. Tú lo revisas y decides la versión final.</p>
-    <div class="start">
-    <div class="modepick" role="radiogroup" aria-labelledby="mp-lab">
-      <span class="mp-lab" id="mp-lab">Elige la versión</span>
-      <div class="mp-cards">
-        <button type="button" class="mcard" role="radio" data-pick="simple" style="--mc:var(--c-green)"><span class="mc-n">3</span><span class="mc-t">Simplificada</span><span class="mc-d">Lo que hace bien, lo que debe mejorar y qué le recomiendas. La más rápida.</span></button>
-        <button type="button" class="mcard" role="radio" data-pick="guiada" style="--mc:var(--c-blue)"><span class="mc-n">7</span><span class="mc-t">Extensa</span><span class="mc-d">Aprendizaje, participación, equipo, responsabilidad, actitud, convivencia y evolución.</span></button>
-      </div>
-      <button type="button" class="mp-libre" role="radio" data-pick="libre">O cuéntalo todo de una vez, sin preguntas (modo libre)</button>
-      <p class="hint" id="mp-note" aria-live="polite"></p>
-    </div>
-    <details class="guide" id="guide-web" hidden>
-      <summary>Cómo se usa (5 pasos)</summary>
+  </header>
+
+  <nav class="steps" aria-label="Secciones">
+    <button data-go="guia" class="t-help"><span class="n">Ayuda</span><span class="t">Cómo se usa</span></button>
+    <button data-go="ajustes"><span class="n">Paso 1</span><span class="t">Tu materia</span></button>
+    <button data-go="contexto"><span class="n">Paso 2 · opcional</span><span class="t">Centro y grupo</span></button>
+    <button data-go="entrevista"><span class="n">Paso 3</span><span class="t">Entrevista</span></button>
+    <button data-go="informe"><span class="n">Paso 4</span><span class="t">Informe</span></button>
+    <button data-go="guardados"><span class="n">Esta sesión</span><span class="t">Guardados <b class="cnt" id="g-cnt">0</b></span></button>
+  </nav>
+  <main class="main">
+
+  <!-- AYUDA -->
+  <section id="v-guia" class="view" aria-label="Cómo se usa" hidden>
+    <div class="guia-grid">
+    <div class="card guide" id="guide-web" hidden>
+      <h2>Cómo se usa (5 pasos)</h2>
       <ol>
         <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda. Si tienes varios grupos, pulsa «+ Nuevo grupo» y cada uno recordará su materia, su curso y su contexto.</li>
-        <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista». Al empezar eliges la versión: 3 o 7 preguntas.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez el navegador te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>Pulsa «Copiar instrucciones»</b> y después el botón de tu IA (ChatGPT, Gemini, Claude o Copilot). Se abre en otra pestaña: pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía. La IA te devuelve el informe redactado.</li>
         <li><b>Copia ese informe, vuelve a esta pestaña y pégalo</b> en el recuadro grande. Revísalo, cópialo a tu plataforma de notas y pasa al siguiente alumno.</li>
       </ol>
       <p class="hint">El micro funciona en Chrome y Edge. En otros navegadores, escribe o usa el dictado del sistema (Windows + H). Necesitas una cuenta en la IA que uses.</p>
       <p class="hint">¿Tienes cuenta de Claude? <a href="https://claude.ai/artifact/HtbJPE7ScvEbbTwmjyjBV7" target="_blank" rel="noopener">Usa la versión automática</a>: te ahorras los pasos 4 y 5.</p>
-    </details>
-    <details class="guide" id="guide-claude">
-      <summary>Cómo se usa (4 pasos)</summary>
+    </div>
+    <div class="card guide" id="guide-claude">
+      <h2>Cómo se usa (4 pasos)</h2>
       <ol>
         <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda. Si tienes varios grupos, pulsa «+ Nuevo grupo» y cada uno recordará su materia, su curso y su contexto.</li>
-        <li><b>Escribe el nombre del alumno</b> en «Entrevista». La versión (3 o 7 preguntas) la eliges aquí arriba y se recuerda.</li>
+        <li><b>Escribe el nombre del alumno</b> en «Entrevista». Al empezar eliges la versión: 3 o 7 preguntas.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
         <li><b>La IA redacta el informe.</b> La primera vez te pedirá permiso para usar Claude, la IA de esta versión. Revisa el texto, ajústalo si quieres y cópialo a tu plataforma de notas.</li>
       </ol>
-    </details>
     </div>
-  </header>
+  <div class="card">
+    <h2>Cómo funciona y privacidad</h2>
+    <div class="summary">
+      <p><b>1. Tu materia.</b> Se rellena una vez y se recuerda en este navegador.</p>
+      <p><b>2. Centro y grupo.</b> Opcional. Puedes compartir el contexto con tu equipo mediante un código.</p>
+      <p><b>3. Entrevista.</b> Al empezar eliges la versión: «Simplificada» (3 preguntas: lo que hace bien, lo que debe mejorar y qué le recomiendas), «Extensa» (7 preguntas, puedes saltar las que quieras) o «Libre» (lo cuentas todo de una vez). En la extensa y la libre, la versión automática puede hacerte como mucho 2 preguntas más si falta algo importante.</p>
+      <p><b>4. Informe.</b> La IA lo redacta solo con lo que has dicho. Puedes editarlo, ajustarlo y copiarlo a tu plataforma de notas.</p>
+      <p><b>5. Guardados.</b> Cada informe se guarda solo al redactarlo. Desde «Guardados» puedes volver a abrirlo, corregirlo, copiarlo o descargarlos todos.</p>
+      <p><b>Micrófono.</b> Pulsa el botón del micro y habla; vuelve a pulsarlo para terminar. Si tu navegador no lo permite, usa el dictado del sistema: <b>Windows + H</b> en Windows, el micro del teclado en el móvil o <b>Fn dos veces</b> en Mac.</p>
+      <p><b>Privacidad.</b> Usa solo el nombre de pila. No incluyas apellidos, diagnósticos médicos ni datos de salud. Los informes y las respuestas se guardan solo en esta pestaña del navegador mientras esté abierta (pestaña «Guardados»). Al cerrarla, desaparecen: cópialos o descárgalos antes. Tus ajustes, tus grupos y el contexto sí se recuerdan en este navegador.</p>
+    </div>
+  </div>
+    </div>
+    <div class="row end"><button class="btn" id="guia-go">Empezar</button></div>
+  </section>
 
-  <div class="layout">
-  <aside class="side">
-  <nav class="steps" aria-label="Pasos">
-    <button data-go="ajustes"><span class="n">Paso 1</span><span class="t">Tu materia</span></button>
-    <button data-go="contexto"><span class="n">Paso 2 · opcional</span><span class="t">Centro y grupo</span></button>
-    <button data-go="entrevista"><span class="n">Paso 3</span><span class="t">Entrevista</span></button>
-    <button data-go="informe"><span class="n">Paso 4</span><span class="t">Informe</span></button>
-  </nav>
-  <div class="side-info" id="side-info" aria-live="polite"></div>
-  </aside>
-  <main class="main">
 
   <!-- PASO 1 -->
   <section id="v-ajustes" class="view card" aria-labelledby="h-aj">
@@ -368,6 +377,17 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
   <!-- PASO 3 -->
   <section id="v-entrevista" class="view" aria-labelledby="h-iv" hidden>
     <h2 id="h-iv" class="sr">Entrevista</h2>
+    <div class="card pick-card" id="pick-card">
+    <div class="modepick" role="radiogroup" aria-labelledby="mp-lab">
+      <span class="mp-lab" id="mp-lab">Elige la versión</span>
+      <div class="mp-cards">
+        <button type="button" class="mcard" role="radio" data-pick="simple" style="--mc:var(--c-green)"><span class="mc-n">3</span><span class="mc-t">Simplificada</span><span class="mc-d">Lo que hace bien, lo que debe mejorar y qué le recomiendas. La más rápida.</span></button>
+        <button type="button" class="mcard" role="radio" data-pick="guiada" style="--mc:var(--c-blue)"><span class="mc-n">7</span><span class="mc-t">Extensa</span><span class="mc-d">Aprendizaje, participación, equipo, responsabilidad, actitud, convivencia y evolución.</span></button>
+      </div>
+      <button type="button" class="mp-libre" role="radio" data-pick="libre">O cuéntalo todo de una vez, sin preguntas (modo libre)</button>
+      <p class="hint" id="mp-note" aria-live="polite"></p>
+    </div>
+    </div>
     <div id="iv" class="card"></div>
   </section>
 
@@ -397,7 +417,7 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
       <div class="row">
         <button class="btn" id="r-copy">Copiar</button>
         <button class="btn ghost" id="r-dl">Descargar .txt</button>
-        <button class="btn ghost" id="r-next">Guardar y siguiente alumno</button>
+        <button class="btn ghost" id="r-next">Siguiente alumno</button>
       </div>
       <div class="note"><b>Revisa antes de usarlo.</b> Comprueba que todo lo que dice es cierto y que suena a ti. La última palabra es siempre del docente.</div>
     </div>
@@ -431,28 +451,22 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
         <div class="row"><button class="btn quiet" id="r-pcopy">Copiar instrucciones</button></div>
       </div>
     </details>
+  </section>
 
-    <div class="card" id="sess" hidden>
-      <div class="row between"><h3>Informes de esta sesión</h3><button class="btn quiet" id="s-dlall">Descargar todos (.txt)</button></div>
-      <p class="hint">Solo existen mientras la página esté abierta. No se guardan en ningún sitio: descárgalos o cópialos antes de cerrar.</p>
+  <!-- GUARDADOS -->
+  <section id="v-guardados" class="view" aria-labelledby="h-sess" hidden>
+    <div class="card" id="sess">
+      <div class="row between"><h2 id="h-sess">Informes de esta sesión</h2><button class="btn quiet" id="s-dlall">Descargar todos (.txt)</button></div>
+      <p class="hint">Cada informe se guarda solo al redactarlo y al editarlo. Se conservan mientras esta pestaña del navegador esté abierta; al cerrarla, desaparecen. Cópialos o descárgalos antes.</p>
+      <p class="status" id="s-status" role="status"></p>
+      <p class="note" id="sess-empty">Todavía no hay informes. Cuando redactes el primero, aparecerá aquí.</p>
       <div class="list" id="sess-list"></div>
+      <div class="row end"><button class="btn" id="s-new">Nuevo alumno</button></div>
     </div>
   </section>
 
-  <details>
-    <summary>Cómo funciona y privacidad</summary>
-    <div class="summary">
-      <p><b>1. Tu materia.</b> Se rellena una vez y se recuerda en este navegador.</p>
-      <p><b>2. Centro y grupo.</b> Opcional. Puedes compartir el contexto con tu equipo mediante un código.</p>
-      <p><b>3. Entrevista.</b> Arriba eliges la versión: «Simplificada» (3 preguntas: lo que hace bien, lo que debe mejorar y qué le recomiendas), «Extensa» (7 preguntas, puedes saltar las que quieras) o «Libre» (lo cuentas todo de una vez). En la extensa y la libre, la versión automática puede hacerte como mucho 2 preguntas más si falta algo importante.</p>
-      <p><b>4. Informe.</b> La IA lo redacta solo con lo que has dicho. Puedes editarlo, ajustarlo y copiarlo a tu plataforma de notas.</p>
-      <p><b>Micrófono.</b> Pulsa el botón del micro y habla; vuelve a pulsarlo para terminar. Si tu navegador no lo permite, usa el dictado del sistema: <b>Windows + H</b> en Windows, el micro del teclado en el móvil o <b>Fn dos veces</b> en Mac.</p>
-      <p><b>Privacidad.</b> Usa solo el nombre de pila. No incluyas apellidos, diagnósticos médicos ni datos de salud. Lo que dices del alumnado no se guarda en esta página: al cerrarla, desaparece. Solo se recuerdan tus ajustes y el contexto del grupo.</p>
-    </div>
-  </details>
 
   </main>
-  </div>
 
   <footer>Basado en la plantilla de comentarios de evaluación de Guillermo Antón Pardo (<a href="https://profesorproductivo.com" target="_blank" rel="noopener">profesorproductivo.com</a>), adaptada por @eboixader. · <a href="iag-en-el-aula.html">Volver a IAg en el aula</a></footer>
 </div>
@@ -553,7 +567,13 @@ const SET_IDS = ["s-materia","s-nivel","s-eval","s-dest","s-idioma","s-voz","s-f
 const CTX_IDS = ["c-usar","c-nombre","c-loc","c-centro-libre","c-num","c-rep","c-grupo-libre"];
 let ctxSel = LS.get("iav-ctxsel", {});
 let alumno = null;           // {nombre, genero, modo, respuestas:{}, libre, follow:[{q,a}], i, stage}
-let sesion = [];             // [{nombre, texto}]
+// Solo en esta pestaña mientras esté abierta (sessionStorage): se borra al cerrarla
+const SS = {
+  get(k, d) { try { const v = sessionStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+let sesion = SS.get("iav-sesion", []);   // [{id, nombre, grupo, texto, al}]
+if (!Array.isArray(sesion)) sesion = [];
 let lastReportFor = null;
 
 const cap = { sample:null, dict:null, tts:null, dl:null, ready:false };
@@ -602,7 +622,7 @@ function loadFields(ids, key) { const d = LS.get(key, {}); ids.forEach(id => wri
 function saveFields(ids, key) { const d = {}; ids.forEach(id => d[id] = readField(id)); LS.set(key, d); }
 
 /* ---------- Navegación ---------- */
-const VIEWS = ["ajustes","contexto","entrevista","informe"];
+const VIEWS = ["guia","ajustes","contexto","entrevista","informe","guardados"];
 function go(v) {
   stopMic();
   VIEWS.forEach(n => { $("#v-" + n).hidden = n !== v; });
@@ -612,6 +632,9 @@ function go(v) {
   if (v === "informe") enterInforme();
   updateSide();
   LS.set("iav-view", v === "informe" && !alumno ? "entrevista" : v);
+  if (v === "guia") LS.set("iav-visto", true);
+  if (v === "guardados") renderSess();
+  b?.scrollIntoView({ block: "nearest", inline: "nearest" });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 document.addEventListener("click", e => {
@@ -744,12 +767,15 @@ function speak(text) {
 
 /* ---------- Entrevista ---------- */
 function nom() { return alumno?.nombre?.replace(/\s*\(ejemplo\)\s*/i, "") || "el alumno"; }
-function newAlumno() { return { nombre:"", genero:"alumno", modo:LS.get("iav-modo", "simple"), respuestas:{}, sel:{}, libre:"", follow:[], i:0, stage:"alumno", informe:"" }; }
+const newSid = () => "a" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function newAlumno() { return { sid:newSid(), grupo:"", nombre:"", genero:"alumno", modo:LS.get("iav-modo", "simple"), respuestas:{}, sel:{}, libre:"", follow:[], i:0, stage:"alumno", informe:"" }; }
 function renderIV() {
   stopMic();
   if (!alumno) alumno = newAlumno();
   const iv = $("#iv"), st = alumno.stage;
   iv.dataset.blk = st === "q" ? qs()[alumno.i].id : "";
+  $("#pick-card").hidden = st !== "alumno";
+  SS.set("iav-alumno", alumno);
   updateSide();
   if (st === "alumno") {
     iv.innerHTML = `
@@ -761,21 +787,19 @@ function renderIV() {
           ${[["alumno","Alumno"],["alumna","Alumna"],["neutro","Lenguaje neutro"]].map(([v,l]) => `<button type="button" class="chip" role="radio" data-gen="${v}" aria-pressed="${alumno.genero===v}" aria-checked="${alumno.genero===v}">${l}</button>`).join("")}
         </div></div>
       </div>
-      <p class="note mp-now">Versión: <b>${MODO_TXT[alumno.modo]}</b>${alumno.modo === "libre" ? "" : ` (${qs().length} preguntas)`}. <a href="#" id="a-cambia">Cambiar</a></p>
       ${!readField("s-materia").trim() ? `<p class="note">Aún no has indicado tu materia. <a href="#" data-go="ajustes">Complétala en el paso 1</a> para que el informe sea más preciso.</p>` : ""}
       <p class="status err" id="a-err" role="alert"></p>
       <div class="row end"><button class="btn" id="a-go">Empezar</button></div>`;
     renderGrupos();
     $("#a-nombre").addEventListener("input", e => alumno.nombre = e.target.value);
     iv.querySelectorAll("[data-gen]").forEach(b => b.onclick = () => { alumno.genero = b.dataset.gen; renderIV(); $("#a-nombre").focus(); });
-    $("#a-cambia").onclick = e => { e.preventDefault(); document.querySelector("header.top").scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => document.querySelector(".mcard[aria-checked='true'],.mp-libre[aria-checked='true']")?.focus({ preventScroll: true }), 300); };
     $("#a-ej").onclick = () => {
       alumno = newAlumno(); Object.assign(alumno, { nombre: EJEMPLO.nombre, genero: EJEMPLO.genero, modo: "guiada", respuestas: { ...EJEMPLO.respuestas }, stage: "revisar" });
       renderIV();
     };
     $("#a-go").onclick = () => {
       if (!alumno.nombre.trim()) { $("#a-err").textContent = "Escribe el nombre para poder empezar."; $("#a-nombre").focus(); return; }
-      alumno.stage = alumno.modo === "libre" ? "libre" : "q"; alumno.i = 0; renderIV();
+      alumno.grupo = gName(curG()); alumno.stage = alumno.modo === "libre" ? "libre" : "q"; alumno.i = 0; renderIV();
       speak(alumno.modo === "libre" ? libreQ() : qs()[0].q(nom()));
     };
     return;
@@ -936,7 +960,7 @@ const ARRANQUES = [
 function inicio(t) { return String(t || "").split(/(?<=[.!?])\s/)[0].slice(0, 160); }
 function buildPrompt() {
   const s = S();
-  const otros = sesion.filter(x => x.nombre !== alumno.nombre).slice(-6).map(x => `- «${inicio(x.texto)}»`);
+  const otros = sesion.filter(x => x.id !== alumno.sid).slice(-6).map(x => `- «${inicio(x.texto)}»`);
   const arranque = ARRANQUES[Math.floor(Math.random() * ARRANQUES.length)];
   const gen = { alumno: "un alumno (usa el masculino)", alumna: "una alumna (usa el femenino)", neutro: "un estudiante (usa lenguaje neutro, evitando marcas de género)" }[alumno.genero];
   const dest = {
@@ -1009,12 +1033,12 @@ async function generate(prompt, label) {
       signal: ctl.signal, cache: false,
       onText: ({ text }) => { if (!started) { started = true; st.textContent = "Escribiendo"; } rep.value = clean(text); updCount(); }
     });
-    rep.value = clean(text); alumno.informe = rep.value; updCount();
-    setStatus(st, truncated ? "El texto ha quedado cortado. Pide «Más breve» o vuelve a redactar." : "Listo. Revísalo y edítalo si hace falta.", truncated);
+    rep.value = clean(text); alumno.informe = rep.value; updCount(); saveCurrent();
+    setStatus(st, truncated ? "El texto ha quedado cortado. Pide «Más breve» o vuelve a redactar." : "Listo y guardado en «Guardados». Revísalo y edítalo si hace falta.", truncated);
   } catch (e) {
     if (e?.code === "cancelled") { rep.value = e.text ? clean(e.text) : before; setStatus(st, "Detenido."); }
     else { rep.value = e?.text ? clean(e.text) : before; setStatus(st, errMsg(e), true); if (e?.code === "not_granted") $("#fallback").open = true; }
-    alumno.informe = rep.value; updCount();
+    alumno.informe = rep.value; updCount(); saveCurrent();
   } finally { $("#r-stop").hidden = true; toggleRepButtons(true); ctl = null; }
 }
 function clean(t) { return String(t || "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/^#+\s*/gm, "").replace(/^\s*[*•-]\s+/gm, "").trim(); }
@@ -1083,14 +1107,44 @@ async function download(filename, text, statusEl) {
 const slug = s => (s || "informe").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\(ejemplo\)/i, "ejemplo").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
 
 /* ---------- Sesión ---------- */
-function renderSess() {
-  $("#sess").hidden = !sesion.length; updateSide();
-  $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li"><span>${esc(x.nombre)}${multiG() ? ` <small class="hint">· ${esc(x.grupo)}</small>` : ""}</span><button class="btn quiet" data-scopy="${k}">Copiar</button></div>`).join("");
+function saveCurrent() {
+  if (!alumno || !alumno.nombre.trim() || /\(ejemplo\)/i.test(alumno.nombre)) return;
+  const txt = (alumno.informe || "").trim(); if (!txt) return;
+  if (!alumno.sid) alumno.sid = newSid();
+  if (!alumno.grupo) alumno.grupo = gName(curG());
+  const it = { id: alumno.sid, nombre: alumno.nombre.trim(), grupo: alumno.grupo, texto: txt, al: JSON.parse(JSON.stringify(alumno)) };
+  const k = sesion.findIndex(x => x.id === it.id);
+  if (k >= 0) sesion[k] = it; else sesion.push(it);
+  SS.set("iav-sesion", sesion); SS.set("iav-alumno", alumno); renderSess();
 }
-$("#sess-list").addEventListener("click", e => { const b = e.target.closest("[data-scopy]"); if (b) copyText(sesion[+b.dataset.scopy].texto, null, $("#r-status"), `Informe de ${sesion[+b.dataset.scopy].nombre} copiado.`); });
+function renderSess() {
+  $("#g-cnt").textContent = sesion.length;
+  $("#sess-empty").hidden = !!sesion.length; $("#s-dlall").disabled = !sesion.length;
+  const showG = new Set(sesion.map(x => x.grupo)).size > 1 || multiG();
+  $("#sess-list").innerHTML = sesion.map((x, k) => `<div class="li sitem"><div style="flex:1;min-width:200px"><b>${esc(x.nombre)}</b>${showG && x.grupo ? ` <small class="hint">· ${esc(x.grupo)}</small>` : ""}${alumno && alumno.sid === x.id ? ` <span class="badge">abierto</span>` : ""}<p class="hint prev">${esc(x.texto.slice(0, 150))}${x.texto.length > 150 ? "…" : ""}</p></div>
+    <div class="row"><button class="btn quiet" data-sopen="${k}">Abrir</button><button class="btn quiet" data-scopy="${k}">Copiar</button><button class="btn quiet" data-sdel="${k}">Quitar</button></div></div>`).join("");
+  updateSide();
+}
+$("#sess-list").addEventListener("click", e => {
+  const o = e.target.closest("[data-sopen]"), c = e.target.closest("[data-scopy]"), d = e.target.closest("[data-sdel]");
+  if (o) {
+    const x = sesion[+o.dataset.sopen];
+    alumno = Object.assign(newAlumno(), JSON.parse(JSON.stringify(x.al)), { informe: x.texto, sid: x.id, grupo: x.grupo });
+    SS.set("iav-alumno", alumno); go("informe");
+    setStatus($("#r-status"), `Informe de ${x.nombre} abierto. Los cambios se guardan solos.`);
+  }
+  if (c) { const x = sesion[+c.dataset.scopy]; copyText(x.texto, null, $("#s-status"), `Informe de ${x.nombre} copiado.`); }
+  if (d) {
+    if (!d.dataset.armed) { d.dataset.armed = "1"; d.textContent = "¿Seguro? Pulsa otra vez"; return; }
+    const x = sesion.splice(+d.dataset.sdel, 1)[0]; SS.set("iav-sesion", sesion); renderSess();
+    setStatus($("#s-status"), `Informe de ${x.nombre} quitado.`);
+  }
+});
+$("#s-new").onclick = () => { const keep = { genero: alumno?.genero || "alumno" }; alumno = Object.assign(newAlumno(), keep); go("entrevista"); setTimeout(() => $("#a-nombre")?.focus(), 50); };
 
 /* ---------- Eventos del informe ---------- */
-$("#rep").addEventListener("input", () => { if (alumno) alumno.informe = $("#rep").value; updCount(); });
+let saveT = null;
+$("#rep").addEventListener("input", () => { if (alumno) alumno.informe = $("#rep").value; updCount(); clearTimeout(saveT); saveT = setTimeout(saveCurrent, 500); });
 $("#r-stop").onclick = () => ctl?.abort();
 $("#r-regen").onclick = () => { $("#r-prompt").value = buildPrompt(); generate(buildPrompt(), "La IA está redactando de nuevo"); };
 $$("[data-tweak]").forEach(b => b.onclick = () => revise(TWEAKS[b.dataset.tweak]));
@@ -1100,12 +1154,10 @@ $("#r-copy").onclick = () => copyText($("#rep").value, $("#rep"), $("#r-status")
 $("#w-copy").onclick = () => { $("#r-prompt").value = buildPrompt(); copyText($("#r-prompt").value, null, $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA y luego pega aquí el informe."); };
 $("#r-pcopy").onclick =() => copyText($("#r-prompt").value, $("#r-prompt"), $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA.");
 $("#r-dl").onclick = () => download(`informe-${slug(alumno?.nombre)}.txt`, $("#rep").value, $("#r-status"));
-$("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => { const t = multiG() ? `${x.nombre} (${x.grupo})` : x.nombre; return `${t}\n${"-".repeat(t.length)}\n${x.texto}`; }).join("\n\n\n"), $("#r-status"));
+$("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => { const t = x.grupo ? `${x.nombre} (${x.grupo})` : x.nombre; return `${t}\n${"-".repeat(t.length)}\n${x.texto}`; }).join("\n\n\n"), $("#s-status"));
 $("#r-next").onclick = () => {
-  const txt = $("#rep").value.trim();
-  if (txt) { const gr = gName(curG()); const i = sesion.findIndex(x => x.nombre === alumno.nombre && x.grupo === gr); const it = { nombre: alumno.nombre, grupo: gr, texto: txt }; if (i >= 0) sesion[i] = it; else sesion.push(it); }
-  renderSess();
-  const keep = { genero: alumno.genero }; $("#mp-note").textContent = "";
+  if (alumno) { alumno.informe = $("#rep").value; saveCurrent(); }
+  const keep = { genero: alumno?.genero || "alumno" }; $("#mp-note").textContent = "";
   alumno = Object.assign(newAlumno(), keep);
   go("entrevista");
   setTimeout(() => $("#a-nombre")?.focus(), 50);
@@ -1205,10 +1257,14 @@ loadFields(CTX_IDS, "iav-ctx");
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("input", () => { saveFields(SET_IDS, "iav-set"); if (id === "s-chars") updCount(); }));
 SET_IDS.forEach(id => document.getElementById(id).addEventListener("change", () => { saveFields(SET_IDS, "iav-set"); updateSide(); }));
 bindCtx(); updateCode(); fillMicSlots(); paintPicker(); snapGroup(); renderGrupos();
-// Guía abierta hasta que el docente la cierre (se recuerda en este navegador)
-$$(".guide").forEach(g => { g.open = !LS.get("iav-guide-closed", false); g.addEventListener("toggle", () => LS.set("iav-guide-closed", !g.open)); });
-const firstView = readField("s-materia").trim() ? "entrevista" : "ajustes";
-go(firstView);
+// La ayuda se muestra la primera vez; después se abre directamente donde toca
+alumno = SS.get("iav-alumno", null);
+if (alumno && typeof alumno !== "object") alumno = null;
+if (alumno) alumno = Object.assign(newAlumno(), alumno);
+const workView = () => readField("s-materia").trim() ? "entrevista" : "ajustes";
+$("#guia-go").onclick = () => go(workView());
+renderSess();
+go(!LS.get("iav-visto", false) ? "guia" : workView());
 
 (async () => {
   if (WEB) {
