@@ -265,10 +265,10 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
         <li><b>Rellena tu materia</b> en el paso 1: curso, a quién va dirigido e idioma. Solo la primera vez; el navegador lo recuerda. Si tienes varios grupos, pulsa «+ Nuevo grupo» y cada uno recordará su materia, su curso y su contexto.</li>
         <li><b>Escribe el nombre del alumno</b> en «Entrevista». Al empezar eliges la versión: 3 o 7 preguntas.</li>
         <li><b>Contesta las preguntas.</b> Pulsa el botón redondo del micro, habla y vuelve a pulsarlo al terminar. La primera vez el navegador te pedirá permiso: pulsa «Permitir». También puedes escribir.</li>
-        <li><b>Pulsa el botón de tu IA</b> en la pestaña Informe (ChatGPT, Claude, Gemini o Copilot). ChatGPT y Claude se abren con las instrucciones ya escritas: solo tienes que enviar. En Gemini y Copilot, pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía.</li>
-        <li><b>Copia el informe que te da la IA a tu plataforma de notas.</b> Los cambios, pídeselos a la IA en la misma conversación. Si quieres tenerlo en «Guardados», pégalo también en el recuadro de la pestaña Informe.</li>
+        <li><b>Pulsa «Redactar con Claude»</b> en la pestaña Informe. Claude se abre en otra pestaña con las instrucciones ya escritas: solo tienes que enviar.</li>
+        <li><b>Copia el informe que te da Claude a tu plataforma de notas.</b> Los cambios, pídeselos a Claude en la misma conversación. Si quieres tenerlo en «Guardados», pégalo también en el recuadro de la pestaña Informe.</li>
       </ol>
-      <p class="hint">El micro funciona en Chrome y Edge. En otros navegadores, escribe o usa el dictado del sistema (Windows + H). Necesitas una cuenta en la IA que uses.</p>
+      <p class="hint">El micro funciona en Chrome y Edge. En otros navegadores, escribe o usa el dictado del sistema (Windows + H). Necesitas una cuenta de Claude.</p>
       <p class="hint">¿Tienes cuenta de Claude? <a href="https://claude.ai/artifact/HtbJPE7ScvEbbTwmjyjBV7" target="_blank" rel="noopener">Usa la versión automática</a>: te ahorras los pasos 4 y 5.</p>
       <p class="hint skill-hint"><b>¿Prefieres hacerlo todo dentro de Claude?</b> Usa la skill «Informes a viva voz»: mismas preguntas y mismas reglas, en una conversación. <a href="https://eboixader-del.github.io/mi-web/skills/informes-a-viva-voz.zip" target="_blank" rel="noopener">Descargar la skill (.zip)</a> y súbela en Claude en <i>Configuración → Capacidades → Skills</i>. <a href="https://eboixader-del.github.io/mi-web/mis-skills-de-claude.html" target="_blank" rel="noopener">Más skills</a>.</p>
     </div>
@@ -400,15 +400,12 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     <div class="card">
       <div class="row between"><h2 id="h-inf">Informe</h2><span class="badge" id="inf-who"></span></div>
       <div id="web-steps" class="answer" hidden>
-        <h3>Redacta el informe con tu IA</h3>
+        <h3>Redacta el informe con Claude</h3>
         <div class="row ai-btns" id="ai-btns">
-          <button class="btn quiet" data-ai="chatgpt">ChatGPT</button>
-          <button class="btn quiet" data-ai="claude">Claude</button>
-          <button class="btn quiet" data-ai="gemini">Gemini</button>
-          <button class="btn quiet" data-ai="copilot">Copilot</button>
+          <button class="btn" data-ai="claude">Redactar con Claude</button>
         </div>
-        <p class="hint"><b>ChatGPT y Claude</b> se abren con las instrucciones ya escritas: solo tienes que enviar. En <b>Gemini y Copilot</b>, pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía.</p>
-        <p class="hint">Luego copia el informe de la IA directamente a tu plataforma de notas. ¿Cambios? Pídeselos allí mismo: «más breve», «más cercano», «tradúcelo al valenciano»… Si quieres tenerlo en «Guardados», pégalo también en el recuadro de abajo.</p>
+        <p class="hint">Claude se abre en otra pestaña con las instrucciones ya escritas: solo tienes que enviar. Si no aparecen, pega con <kbd>Ctrl</kbd> + <kbd>V</kbd> y envía.</p>
+        <p class="hint">Luego copia el informe de Claude directamente a tu plataforma de notas. ¿Cambios? Pídeselos allí mismo: «más breve», «más cercano», «tradúcelo al valenciano»… Si quieres tenerlo en «Guardados», pégalo también en el recuadro de abajo.</p>
         <p class="hint"><button type="button" class="linkbtn" id="w-copy">Solo copiar las instrucciones</button></p>
       </div>
       <p class="status" id="r-status" role="status"></p>
@@ -445,10 +442,10 @@ footer{font-size:.84rem;color:var(--muted);text-align:center;max-width:62ch;marg
     </div>
 
     <details id="fallback">
-      <summary>¿No funciona la redacción automática? Copia las instrucciones para otra IA</summary>
+      <summary>¿No funciona la redacción automática? Copia las instrucciones para Claude</summary>
       <div class="answer">
-        <p class="hint">Si la página no puede conectar con la IA (por ejemplo, sin sesión iniciada), copia este texto y pégalo en la IA que uses en tu centro.</p>
-        <textarea id="r-prompt" readonly style="min-height:160px" aria-label="Instrucciones para otra IA"></textarea>
+        <p class="hint">Si la página no puede conectar con la IA (por ejemplo, sin sesión iniciada), copia este texto, pégalo en una conversación nueva de Claude (claude.ai) y pega aquí el informe que te dé.</p>
+        <textarea id="r-prompt" readonly style="min-height:160px" aria-label="Instrucciones para Claude"></textarea>
         <div class="row"><button class="btn quiet" id="r-pcopy">Copiar instrucciones</button></div>
       </div>
     </details>
@@ -877,7 +874,7 @@ function renderIV() {
     $("#r-back").onclick = () => { if (alumno.modo === "libre") alumno.stage = "libre"; else { alumno.stage = "q"; alumno.i = 0; } renderIV(); };
     $("#r-skipf").onclick = () => { alumno.informe = ""; go("informe"); };
     if (!simple) $("#r-follow").onclick = askFollowups;
-    if (!cap.sample && !simple) setStatus($("#f-status"), cap.ready ? "La IA no está disponible en esta vista. Pulsa «Redactar ya» y usa «Copiar las instrucciones para otra IA»." : "Conectando con la IA…");
+    if (!cap.sample && !simple) setStatus($("#f-status"), cap.ready ? "La IA no está disponible en esta vista. Pulsa «Redactar ya» y usa «Copia las instrucciones para Claude»." : "Conectando con la IA…");
     return;
   }
   if (st === "follow") {
@@ -1019,11 +1016,11 @@ function enterInforme() {
   if (alumno.informe) { $("#rep").value = alumno.informe; updCount(); setStatus($("#r-status"), ""); return; }
   if (WEB) { $("#rep").value = ""; updCount(); setStatus($("#r-status"), ""); }
   else if (cap.sample) generate(buildPrompt(), "La IA está redactando el informe");
-  else { $("#rep").value = ""; updCount(); setStatus($("#r-status"), cap.ready ? "La IA no está disponible en esta vista. Abre «Copia las instrucciones para otra IA», pégalas en tu IA y pega aquí el resultado." : "Conectando con la IA… Pulsa «Volver a redactar» en unos segundos.", cap.ready); $("#fallback").open = cap.ready; }
+  else { $("#rep").value = ""; updCount(); setStatus($("#r-status"), cap.ready ? "La IA no está disponible en esta vista. Abre «Copia las instrucciones para Claude», pégalas en claude.ai y pega aquí el resultado." : "Conectando con la IA… Pulsa «Volver a redactar» en unos segundos.", cap.ready); $("#fallback").open = cap.ready; }
 }
 function toggleRepButtons(on) { ["r-copy","r-dl","r-next","r-regen","r-trad","r-apply"].forEach(id => $("#" + id).disabled = !on); $$("[data-tweak]").forEach(b => b.disabled = !on); }
 async function generate(prompt, label) {
-  if (!cap.sample) { setStatus($("#r-status"), "La IA no está disponible en esta vista. Usa las instrucciones para otra IA.", true); $("#fallback").open = true; return; }
+  if (!cap.sample) { setStatus($("#r-status"), "La IA no está disponible en esta vista. Usa las instrucciones para Claude.", true); $("#fallback").open = true; return; }
   if (ctl) ctl.abort();
   ctl = new AbortController();
   const rep = $("#rep"), st = $("#r-status"), before = rep.value;
@@ -1076,7 +1073,7 @@ Devuelve solo el informe revisado.`;
 function setStatus(el, t, err) { el.className = "status" + (err ? " err" : ""); el.textContent = t; }
 function errMsg(e) {
   switch (e?.code) {
-    case "not_granted": return "No se ha dado permiso para usar Claude en esta página. Puedes copiar las instrucciones para otra IA.";
+    case "not_granted": return "No se ha dado permiso para usar Claude en esta página. Puedes copiar las instrucciones y pegarlas en claude.ai.";
     case "rate_limited": return "Has llegado al límite de uso de la IA por ahora. Espera unos minutos y vuelve a intentarlo.";
     case "session_expired": return "La sesión ha caducado. Recarga la página e inicia sesión de nuevo.";
     case "sampling_disabled": return "El uso de la IA está desactivado para tu cuenta en esta página.";
@@ -1152,16 +1149,13 @@ $$("[data-tweak]").forEach(b => b.onclick = () => revise(TWEAKS[b.dataset.tweak]
 $("#r-trad").onclick = () => revise(`Tradúcelo al ${$("#r-lang").value}, con naturalidad y sin cambiar el contenido. Los títulos de los apartados, si los hay, también traducidos.`);
 $("#r-apply").onclick = () => { const t = $("#r-instr").value.trim(); if (!t) { $("#r-instr").focus(); return; } revise(t); $("#r-instr").value = ""; };
 $("#r-copy").onclick = () => copyText($("#rep").value, $("#rep"), $("#r-status"), "Informe copiado. Pégalo en tu plataforma de notas.");
-/* Abrir la IA del docente con las instrucciones ya escritas (si la plataforma lo permite) */
+/* Abrir Claude con las instrucciones ya escritas */
 const AIS = {
-  chatgpt: { n: "ChatGPT", url: q => "https://chatgpt.com/?q=" + q, home: "https://chatgpt.com/" },
-  claude:  { n: "Claude",  url: q => "https://claude.ai/new?q=" + q, home: "https://claude.ai/new" },
-  gemini:  { n: "Gemini",  home: "https://gemini.google.com/app" },
-  copilot: { n: "Copilot", home: "https://copilot.microsoft.com/" }
+  claude:  { n: "Claude",  url: q => "https://claude.ai/new?q=" + q, home: "https://claude.ai/new" }
 };
 function paintAI() {
   const last = LS.get("iav-ia", "");
-  $$("[data-ai]").forEach(b => { b.classList.toggle("quiet", b.dataset.ai !== last); });
+  $$("[data-ai]").forEach(b => { b.classList.remove("quiet"); });
 }
 $$("[data-ai]").forEach(b => b.onclick = () => {
   if (!alumno || !notesList().length) { setStatus($("#r-status"), "Primero haz la entrevista de un alumno en el paso 3.", true); return; }
@@ -1176,8 +1170,8 @@ $$("[data-ai]").forEach(b => b.onclick = () => {
     : `Instrucciones copiadas y ${ai.n} abierto en otra pestaña: pega con Ctrl + V y envía.`);
 });
 paintAI();
-$("#w-copy").onclick = () => { $("#r-prompt").value = buildPrompt(); copyText($("#r-prompt").value, null, $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA y luego pega aquí el informe."); };
-$("#r-pcopy").onclick =() => copyText($("#r-prompt").value, $("#r-prompt"), $("#r-status"), "Instrucciones copiadas. Pégalas en tu IA.");
+$("#w-copy").onclick = () => { $("#r-prompt").value = buildPrompt(); copyText($("#r-prompt").value, null, $("#r-status"), "Instrucciones copiadas. Pégalas en claude.ai y luego pega aquí el informe."); };
+$("#r-pcopy").onclick =() => copyText($("#r-prompt").value, $("#r-prompt"), $("#r-status"), "Instrucciones copiadas. Pégalas en claude.ai.");
 $("#r-dl").onclick = () => download(`informe-${slug(alumno?.nombre)}.txt`, $("#rep").value, $("#r-status"));
 $("#s-dlall").onclick = () => download(`informes-${slug(readField("s-materia"))}-${slug(readField("s-eval"))}.txt`, sesion.map(x => { const t = x.grupo ? `${x.nombre} (${x.grupo})` : x.nombre; return `${t}\n${"-".repeat(t.length)}\n${x.texto}`; }).join("\n\n\n"), $("#s-status"));
 $("#r-next").onclick = () => {
@@ -1311,7 +1305,7 @@ function refreshAfterCaps() {
   if (!$("#v-informe").hidden && alumno && !alumno.informe && notesList().length) enterInforme();
   $("#r-dl").hidden = !cap.dl && !WEB; $("#s-dlall").hidden = !cap.dl && !WEB;
   $("#web-steps").hidden = !WEB; $("#tweaks").hidden = WEB; $("#fallback").hidden = WEB; $("#r-regen").hidden = WEB;
-  if (WEB) $("#rep").placeholder = "Opcional: pega aquí el informe que te ha dado tu IA para tenerlo en «Guardados» y poder editarlo o descargarlo.";
+  if (WEB) $("#rep").placeholder = "Opcional: pega aquí el informe que te ha dado Claude para tenerlo en «Guardados» y poder editarlo o descargarlo.";
 }
 })();
 </script>
